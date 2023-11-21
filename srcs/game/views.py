@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+import os
 
 # Create your views here.
 def index(request):
-    f = open("/home/belam/42cursus/transcendance/game/test", "r")
+    f = open(os.getcwd() + "/game/test.html", "r")
     return HttpResponse(f.read())
