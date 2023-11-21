@@ -1,0 +1,14 @@
+
+
+<script>
+let a = 5
+let b = 6
+if (a > b)
+{
+    document.write("hello");
+}
+else
+{
+    document.write("NOO")
+}
+</script>
