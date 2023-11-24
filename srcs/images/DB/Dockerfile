@@ -1,7 +1,1 @@
-FROM postgres:latest
-
-RUN apt-get update
-
-EXPOSE 5432
-
-CMD ["postgres"]
+FROM postgres:14-alpine

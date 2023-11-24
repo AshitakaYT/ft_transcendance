@@ -1,11 +1,11 @@
-FROM python:latest
+FROM python:3.9
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-COPY . /app
+COPY requirements.txt /app
 
 RUN	pip install uvicorn && \
 	pip install django && \
@@ -28,4 +28,4 @@ RUN openssl req -x509 -nodes -days 365 -newkey \
 EXPOSE 8000
 
 #CMD ["tail", "-f", "/dev/null"] # issue finding
-CMD [ "uvicorn", "trans.asgi:application", "--reload", "--host", "0.0.0.0", "--port", "8000", "--ssl-keyfile", "/cert/key.pem", "--ssl-certfile", "/cert/cert.pem" ]
+CMD [ "uvicorn", "transcendance.asgi:application", "--reload", "--host", "0.0.0.0", "--port", "8000", "--ssl-keyfile", "/cert/key.pem", "--ssl-certfile", "/cert/cert.pem" ]

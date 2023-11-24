@@ -5,9 +5,6 @@ services:
     image: postgres:14-alpine
     init: true
     container_name: db
-    volumes:
-      - postgres_db:/var/lib/postgresql/data
-      - ./images/DB/script:/docker-entrypoint-initdb.d
     env_file:
       - /home/erik/Desktop/ft_transcendance/srcs/.env
     restart: always
@@ -23,7 +20,7 @@ services:
     env_file:
       - /home/erik/Desktop/ft_transcendance/srcs/.env
     volumes:
-      - ./images/Python:/app
+      - ./images/Python/Project:/app
     ports:
       - "8000:8000"
     restart: always
@@ -31,14 +28,6 @@ services:
       - db
     networks:
       - ft_network
-
-volumes:
-  postgres_db:
-    driver: local
-    driver_opts:
-      type: none
-      device: /home/erik/Desktop/ft_transcendance/volume
-      o: bind
 
 networks:
   ft_network:

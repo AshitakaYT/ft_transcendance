@@ -12,8 +12,7 @@ clean:
 	@docker-compose -f srcs/docker-compose.yml down --rmi all --volumes
 	@docker system prune --all --force
 	@docker volume prune --force
-	@docker volume rm $$(docker volume ls --filter dangling=true -q)
-	@rm -rf volume/*
+	-@docker volume rm $$(docker volume ls --filter dangling=true -q)
 
 re: clean all
 
