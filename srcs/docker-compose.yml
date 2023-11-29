@@ -1,33 +1,33 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:14-alpine
-    init: true
-    container_name: db
-    env_file:
-      - /home/erik/Desktop/ft_transcendance/srcs/.env
-    restart: always
-    networks:
-      - ft_network
-    ports:
-      - "5432:5432"
-
   python:
+    build: images/Python
     init: true
     container_name: website
-    build: ./images/Python
     env_file:
-      - /home/erik/Desktop/ft_transcendance/srcs/.env
+      - ./.env
     volumes:
       - ./images/Python/Project:/app
-    ports:
-      - "8000:8000"
     restart: always
     depends_on:
       - db
     networks:
       - ft_network
+    ports:
+      - "8000:8000"
+
+  db:
+    build: images/DB
+    init: true
+    container_name: db
+    env_file:
+      - ./.env
+    restart: always
+    networks:
+      - ft_network
+    ports:
+      - "5432:5432"
 
 networks:
   ft_network:

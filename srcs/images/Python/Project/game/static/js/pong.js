@@ -1,20 +1,11 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset=utf-8 />
-        <title>Draw a circle</title>
-    </head>
-    <body onload="draw();">
-        <canvas id="circle" width="1700" height="700"></canvas>
-        <p id="test">Greetings</p>
-    </body>
-</html> 
-
-<script>
     let i = 0;
     let j = 0;
     let dx = 1;
-    let dy = 1; 
+    let dy = 1;
+    function redirectToURL() {
+            window.location.href = 'https://0.0.0.0:8000/';
+        }
+        document.getElementById('redirectButton').addEventListener('click', redirectToURL);
     function draw()
     {
         var canvas = document.getElementById('circle');
@@ -48,17 +39,21 @@
 
                 ctx.beginPath();
                 ctx.lineWidth = 3;
-                ctx.rect(1680 - 20, (700 - 200) / 2, 20, 200);
+                ctx.rect(1680 - 20, (500 - 200) / 2, 20, 200);
                 ctx.fillStyle = '#0000FF';
                 ctx.fill();
                 if (X < 10 + R || X > 1690 - R)
                     dx *= -1;
                 if (Y < 10 + R || Y > 690 - R)
                     dy *= -1;
+                if (i > 203 || i < -203)
+                {
+                    i = 0;
+                    j = 0;
+                }
                 i += dx;
                 j += dy;
                 document.getElementById("test").innerHTML = i;
                 window.requestAnimationFrame(draw);
             }
-    }
-</script>
+}

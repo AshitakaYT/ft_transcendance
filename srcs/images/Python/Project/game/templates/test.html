@@ -1,0 +1,15 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8 />
+        <title>Draw a circle</title>
+    </head>
+    <body onload="draw();">
+        <canvas id="circle" width="1700" height="700"></canvas>
+        <p id="test">Greetings</p>
+        <button id="redirectButton">HOME</button>
+        <script src="{% static 'js/pong.js' %}"></script>
+    </body>
+</html> 

@@ -17,9 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from game import views
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("game", include("game.urls")),
+    path("bears", views.bears, name="bears"),
+    path("game", views.index, name="game"),
     path("admin/", admin.site.urls),
+    path('login/', views.authenticate_42, name='authenticate_42'),
+    path('callback', views.callback, name='callback'),
+    # path('login/', LoginView.as_view(), name='login'),
+    # path('auth/', include('social_django.urls', namespace='social')),
+    # path('logout/', LogoutView.as_view(), name='logout'),
 ]
