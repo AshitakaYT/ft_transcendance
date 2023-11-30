@@ -3,7 +3,7 @@
     let dx = 1;
     let dy = 1;
     function redirectToURL() {
-            window.location.href = 'https://0.0.0.0:8000/';
+            window.location.href = 'https://localhost:8000/';
         }
         document.getElementById('redirectButton').addEventListener('click', redirectToURL);
     function draw()

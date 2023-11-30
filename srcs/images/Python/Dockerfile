@@ -6,6 +6,8 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 COPY requirements.txt /app
+COPY ./Script/script.sh /
+RUN chmod +x /script.sh
 
 RUN	pip install uvicorn && \
 	pip install django && \
@@ -20,6 +22,7 @@ RUN apt-get update && \
     apt-get install -y \
         build-essential \
         libpq-dev \
+        nmap \
     && rm -rf /var/lib/apt/lists/* \
 	pip install -r requirements.txt
 
@@ -35,3 +38,4 @@ EXPOSE 8000
 CMD [ "uvicorn", "transcendance.asgi:application", \
         "--reload", "--host", "0.0.0.0", "--port", "8000", \
             "--ssl-keyfile", "/cert/key.pem", "--ssl-certfile", "/cert/cert.pem" ]
+ENTRYPOINT [ "/script.sh" ]

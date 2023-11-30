@@ -19,12 +19,16 @@ def bears(request):
     # b = open(os.getcwd() + "/game/templates/bears.html", "r")
     # return HttpResponse(b.read())
 
+def error(request):
+    return render(request, "error.html")
+
+TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
+
 def authenticate_42(request):
     authorization_url = 'https://api.intra.42.fr/oauth/authorize'
-    token_url = 'https://api.intra.42.fr/oauth/token'
 
     client_id = settings.CLIENT_ID
-    redirect_uri = settings.CLIENT_URL
+    redirect_uri = 'https://localhost:8000/callback/'
     scope = 'public'
 
     auth_params = {
@@ -37,21 +41,25 @@ def authenticate_42(request):
     print('Authentication Successful')
     return redirect(auth_url)
 
+
 def callback(request):
     authorization_code = request.GET.get('code')
 
     token_params = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': 'http://0.0.0.0/game',
+        'redirect_uri': 'https://localhost:8000/callback/',
         'client_id': settings.CLIENT_ID,
         'client_secret': settings.CLIENT_SECRET 
     }
-    response = requests.post(token_url, data=token_params)
-    print('Callback Successful')
+    print('TOKEN_URL:', TOKEN_URL)
+    response = requests.post(TOKEN_URL, data=token_params)
+    print(response.status_code)
+    print(response.json()['access_token'])
     if response.status_code == 200:
+        print('Callback Successful')
         access_token = response.json()['access_token']
         request.session['access_token'] = access_token
-        return redirect('/success/')
+        return redirect('/game/')
     else:
         return redirect('/error/')

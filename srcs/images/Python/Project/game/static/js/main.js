@@ -1,11 +1,10 @@
 function redirectToURL() {
-    window.location.href = 'https://0.0.0.0:8000/game';
+    window.location.href = 'https://localhost:8000/game';
 }
 document.getElementById('gotoPong').addEventListener('click', redirectToURL);
 
 function redirectToURL() {
-    window.location.href = 'https://0.0.0.0:8000/login/';
-    // signIn();
+    window.location.href = 'https://localhost:8000/login/';
 }
 document.getElementById('sign_in').addEventListener('click', redirectToURL);
 

@@ -38,7 +38,7 @@ CLIENT_ID = os.getenv('API_UID')
 CLIENT_SECRET = os.getenv('API_SECRET')
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = 'https://0.0.0.0:8000/game'
+LOGIN_REDIRECT_URL = 'https://localhost:8000/game'
 
 INSTALLED_APPS = [
     'django.contrib.admin',

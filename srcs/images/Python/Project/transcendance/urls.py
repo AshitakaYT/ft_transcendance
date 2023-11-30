@@ -21,11 +21,12 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("bears", views.bears, name="bears"),
-    path("game", views.index, name="game"),
+    path("bears/", views.bears, name="bears"),
+    path("game/", views.index, name="game"),
     path("admin/", admin.site.urls),
     path('login/', views.authenticate_42, name='authenticate_42'),
-    path('callback', views.callback, name='callback'),
+    path('callback/', views.callback, name='callback'),
+    path('error/', views.error, name='error'),
     # path('login/', LoginView.as_view(), name='login'),
     # path('auth/', include('social_django.urls', namespace='social')),
     # path('logout/', LogoutView.as_view(), name='logout'),
