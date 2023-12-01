@@ -1,0 +1,32 @@
+FROM debian:bullseye
+
+# set a directory for the app
+WORKDIR /home/iel-amra
+
+# install dependencies
+RUN apt update
+RUN apt upgrade -y
+RUN apt install python3.9 -y
+RUN apt install python3-pip -y
+RUN python3.9 -m pip install Django
+RUN pip install --upgrade django-crispy-forms
+RUN pip install crispy-bootstrap4
+RUN pip install djangorestframework 
+RUN pip install django-cors-headers
+RUN pip install httpie
+RUN pip install channels
+RUN pip install uvicorn 
+
+#RUN pip install daphne 
+#utils
+RUN apt install zsh -y
+RUN apt install curl -y
+RUN curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh 
+
+
+EXPOSE 8000 
+
+ENTRYPOINT ["python3.9"]
+#CMD [".", "bash"]
+#CMD ["manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["-m", "uvicorn", "TokenAuth.asgi:application"]

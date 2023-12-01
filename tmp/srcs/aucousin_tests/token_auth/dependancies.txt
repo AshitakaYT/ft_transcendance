@@ -1,0 +1,7 @@
+pip install django
+pip install --upgrade django-crispy-forms
+pip install crispy-bootstrap4
+pip install djangorestframework 
+pip install httpie
+pip install channels
+

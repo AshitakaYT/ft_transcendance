@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14-alpine
+    init: true
+    container_name: db
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+      - ./images/DB/script:/docker-entrypoint-initdb.d
+    env_file:
+      - ./.env
+    restart: always
+    networks:
+      - ft_network
+    ports:
+      - "5432:5432"
+
+  python:
+    init: true
+    container_name: website
+    build: ./images/Python
+    env_file:
+      - ./.env
+    volumes:
+      - ./images/Python:/app
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - ft_network
+
+volumes:
+  postgres_db:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volume
+      o: bind
+
+networks:
+  ft_network:
+        driver: bridge

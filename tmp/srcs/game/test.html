@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8 />
+        <title>Draw a circle</title>
+    </head>
+    <body onload="draw();">
+        <canvas id="circle" width="1700" height="700"></canvas>
+        <p id="test">Greetings</p>
+    </body>
+</html> 
+
+<script>
+    let i = 0;
+    let j = 0;
+    let dx = 1;
+    let dy = 1; 
+    function draw()
+    {
+        var canvas = document.getElementById('circle');
+        if (canvas.getContext)
+            {
+
+                var ctx = canvas.getContext('2d'); 
+                ctx.clearRect(0, 0, 1700, 700);
+                var X = (canvas.width / 2 + 4 * i) % canvas.width;
+                var Y = (canvas.height / 2  + 4 * j) % canvas.height;
+                var R = 25;
+
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.rect(10, 10, 1680, 680);
+                ctx.strokeStyle = '#000000';
+
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.fillStyle = '#FF0000';
+                ctx.arc(X, Y, R, 0, 2 * Math.PI, false);
+                ctx.fill();
+
+
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.rect(20, (700 - 200) / 2, 20, 200);
+                ctx.fillStyle = '#0000FF';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.rect(1680 - 20, (700 - 200) / 2, 20, 200);
+                ctx.fillStyle = '#0000FF';
+                ctx.fill();
+                if (X < 10 + R || X > 1690 - R)
+                    dx *= -1;
+                if (Y < 10 + R || Y > 690 - R)
+                    dy *= -1;
+                i += dx;
+                j += dy;
+                document.getElementById("test").innerHTML = i;
+                window.requestAnimationFrame(draw);
+            }
+    }
+</script>
