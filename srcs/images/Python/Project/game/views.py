@@ -2,6 +2,8 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.conf import settings
 import os
 import requests
+from .models import UserProfile
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
@@ -26,21 +28,24 @@ TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
 
 def authenticate_42(request):
     authorization_url = 'https://api.intra.42.fr/oauth/authorize'
-
     client_id = settings.CLIENT_ID
     redirect_uri = 'https://localhost:8000/callback/'
     scope = 'public'
-
+# i'm really starting to feel suicidal because of how that part is confusing
+# i tried to send auth_param with wrong parameters (like changing client_id to asddas)
+# and 42 still sends me a valid and usable token, how the actual fuck am i supposed to work with that?
+# i thought 'huh weird. ill just revoke it and try again' WRONG, still sends me a valid one again
     auth_params = {
-        'client_id': client_id,
-        'redirect_uri': redirect_uri,
+        'client_id': client_id, # UID given by the 42 application
+        'redirect_uri': redirect_uri, # yes it's called urI, idk why, it's the url used in the application
         'scope': scope,
         'response_type': 'code'
     }
     auth_url = f"{authorization_url}?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code"
     print('Authentication Successful')
+    response = requests.post(TOKEN_URL, data=auth_params)
+    print(response.status_code)
     return redirect(auth_url)
-
 
 def callback(request):
     authorization_code = request.GET.get('code')
@@ -52,14 +57,43 @@ def callback(request):
         'client_id': settings.CLIENT_ID,
         'client_secret': settings.CLIENT_SECRET 
     }
-    print('TOKEN_URL:', TOKEN_URL)
     response = requests.post(TOKEN_URL, data=token_params)
-    print(response.status_code)
-    print(response.json()['access_token'])
     if response.status_code == 200:
-        print('Callback Successful')
-        access_token = response.json()['access_token']
-        request.session['access_token'] = access_token
-        return redirect('/game/')
+        try:
+            access_token = response.json()['access_token']
+            print(1)
+            print(os.getenv('API_URL'))
+            print(os.getenv('API_UID'))
+            print(os.getenv('API_SECRET'))
+            user_profile, created = UserProfile.objects.get_or_create(name=request.user)
+            print(2)
+            user_profile.token = access_token
+            print(3)
+            user_profile.save()
+            print(4)
+            print(user_profile.name)
+            print(user_profile.token)
+            request.session['access_token'] = access_token
+            return redirect('/game/')
+        except Exception as e:
+            print(e)
+            print('Error')
+            print(access_token)
+            return redirect('/error/')
     else:
         return redirect('/error/')
+    return redirect('/game/')
+
+def RevokeToken(request):
+    revocation_url = 'https://api.intra.42.fr/oauth/revoke'
+    user_profile, created = UserProfile.objects.get_or_create(name=request.user)
+    data = {'token': user_profile.token}
+    user_profile.token = ''
+    user_profile.save()
+    response = requests.post(revocation_url, data=data)
+    if response.status_code == 200:
+        print('Token revoked successfully')
+    else:
+        print('Token revocation failed')
+    return redirect("home")
+    

@@ -1,12 +1,23 @@
 version: '3.8'
 
 services:
-  python:
+  db:
+    build: images/DB
+    init: true
+    container_name: db
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - ft_network
+    ports:
+      - "5432:5432"
+  django:
     build: images/Python
     init: true
-    container_name: website
+    container_name: django
     env_file:
-      - ./.env
+      - .env
     volumes:
       - ./images/Python/Project:/app
     restart: always
@@ -16,18 +27,6 @@ services:
       - ft_network
     ports:
       - "8000:8000"
-
-  db:
-    build: images/DB
-    init: true
-    container_name: db
-    env_file:
-      - ./.env
-    restart: always
-    networks:
-      - ft_network
-    ports:
-      - "5432:5432"
 
 networks:
   ft_network:

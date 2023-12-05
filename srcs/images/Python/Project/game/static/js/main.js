@@ -1,25 +1,14 @@
-function redirectToURL() {
+function PlayTheGame() {
     window.location.href = 'https://localhost:8000/game';
 }
-document.getElementById('gotoPong').addEventListener('click', redirectToURL);
+document.getElementById('gotoPong').addEventListener('click', PlayTheGame);
 
-function redirectToURL() {
+function redirectToLogin() {
     window.location.href = 'https://localhost:8000/login/';
 }
-document.getElementById('sign_in').addEventListener('click', redirectToURL);
+document.getElementById('sign_in').addEventListener('click', redirectToLogin);
 
-function signIn(){
-    let oauth2Endpoint = "https://api.intra.42.fr/oauth/token"
-
-    let form = document.createElement('form')
-    form.setAttribute('method','GET')
-    form.setAttribute('action',oauth2Endpoint)
-
-    let params = {
-        "access_token":"",
-        "token_type":"",
-        "expires_in":'',
-        "scope":"",
-        "created_at":''
-    }
+function RevokeToken() {
+    window.location.href = 'https://localhost:8000/token/';
 }
+document.getElementById('viewToken').addEventListener('click', RevokeToken);
