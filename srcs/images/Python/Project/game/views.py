@@ -38,7 +38,7 @@ def authenticate_42(request):
     auth_params = {
         'client_id': client_id, # UID given by the 42 application
         'redirect_uri': redirect_uri, # yes it's called urI, idk why, it's the url used in the application
-        'scope': scope,
+        'scope': 'scope',
         'response_type': 'code'
     }
     auth_url = f"{authorization_url}?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code"
@@ -49,6 +49,7 @@ def authenticate_42(request):
 
 def callback(request):
     authorization_code = request.GET.get('code')
+
 
     token_params = {
         'grant_type': 'authorization_code',
@@ -61,18 +62,18 @@ def callback(request):
     if response.status_code == 200:
         try:
             access_token = response.json()['access_token']
-            print(1)
-            print(os.getenv('API_URL'))
-            print(os.getenv('API_UID'))
-            print(os.getenv('API_SECRET'))
             user_profile, created = UserProfile.objects.get_or_create(name=request.user)
-            print(2)
             user_profile.token = access_token
-            print(3)
-            user_profile.save()
-            print(4)
+# this next chunk of code will find the name of the user
+            profile_url = "https://api.intra.42.fr/v2/me"
+            headers = {"Authorization": f"Bearer {access_token}"}
+            token_response = requests.get(profile_url, headers=headers)
+            displayname = token_response.json().get('displayname')
+            user_profile.name = displayname
+
             print(user_profile.name)
             print(user_profile.token)
+            user_profile.save()
             request.session['access_token'] = access_token
             return redirect('/game/')
         except Exception as e:

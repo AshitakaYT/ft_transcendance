@@ -1,4 +1,4 @@
 https://api.intra.42.fr/oauth/token/info - get information about the token
 
 Correct format to fetch API information -
-curl -gX "https://api.intra.42.fr/v2/<category>/" -H "Authorization: Bearer <token>"
+curl -gX GET "https://api.intra.42.fr/v2/<category>/" -H "Authorization: Bearer <token>"
