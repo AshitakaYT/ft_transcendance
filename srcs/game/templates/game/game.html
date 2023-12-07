@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8 />
+        <title>Jeu</title>
+    </head>
+    <body onload="frame();">
+        <canvas id="circle" width={{ width_canvas }} height={{ height_canvas }}></canvas>
+        <p id="test">Greetings</p>
+    </body>
+</html> 
+
+<script>
+    let width={{ width }};
+    let height={{ height }};
+    let paddleh={{ paddleh }};
+    let paddlew={{ paddlew }};
+    let paddled={{ paddled }};
+
+    //document.getElementById("test").innerHTML = Width;
+    //document.getElementById("circle").setAttribute("height", string(Height + 20));
+
+    var data =
+    {
+        h : height,
+        w : width,
+        t : 0.1,
+        ball :
+        {
+            x : 0,
+            y : 0,
+            r : 25,
+            vx : 20,
+            vy : 20
+        },
+        paddleR :
+        {
+            x : width / 2 - paddled - paddlew,
+            y : - paddleh / 2,
+            w : paddlew,
+            h : paddleh,
+            vx : 0,
+            vy : 0
+        },
+        paddleL :
+        {
+            x : paddled - width / 2,
+            y : - paddleh / 2,
+            w : paddlew,
+            h : paddleh,
+            vx : 0,
+            vy : 0,
+        }
+    };
+    
+    function frame()
+    {
+        simulate();
+        draw();
+        //window.requestAnimationFrame(frame);
+        setInterval(frame(), 20);
+    }
+
+    function simulate()
+    {
+        while (data.t > 0)
+        {
+            let dt = data.t;
+            let nvx = data.ball.vx;
+            let nvy = data.ball.vy;
+            if (data.ball.x + data.ball.vx * dt < data.ball.r - data.w / 2)
+            {
+                nvx = - data.ball.vx;
+                dt = (data.ball.r - data.w / 2 - data.ball.x) / data.ball.vx
+            }
+            if (data.ball.x + data.ball.vx * dt > data.w / 2 - data.ball.r)
+            {
+                nvx = - data.ball.vx;
+                dt = (data.w / 2 - data.ball.r - data.ball.x) / data.ball.vx
+            }
+
+            if (data.ball.y + data.ball.vy * dt < data.ball.r - data.h / 2)
+            {
+                nvy = - data.ball.vy;
+                dt = (data.ball.r - data.h / 2 - data.ball.y) / data.ball.vy
+            }
+            if (data.ball.y + data.ball.vy * dt > data.h / 2 - data.ball.r)
+            {
+                nvy = - data.ball.vy;
+                dt = (data.h / 2 - data.ball.r - data.ball.y) / data.ball.vy
+            }
+            data.t -= dt;
+            data.ball.vx = nvx;
+            data.ball.vy = nvy;
+            data.ball.x += nvx;
+            data.ball.y += nvy;
+            document.getElementById("test").innerHTML = data.t;
+        }
+        data.t = 0.1;
+    }
+
+    function draw()
+    {
+        var canvas = document.getElementById('circle');
+        if (canvas.getContext)
+            {
+                var ctx = canvas.getContext('2d'); 
+                ctx.clearRect(0, 0, canvas.width , canvas.height);
+                
+                // Rectangle game
+
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.rect((canvas.width - data.w) / 2, (canvas.height - data.h) / 2, data.w, data.h);
+                ctx.strokeStyle = '#000000';
+                ctx.stroke();
+                
+                //Ball
+
+                ctx.beginPath();
+                ctx.fillStyle = '#FF0000';
+                ctx.arc(data.ball.x + canvas.width / 2, data.ball.y + canvas.height / 2, data.ball.r, 0, 2 * Math.PI, false);
+                ctx.fill();
+
+                // Left Paddle
+
+                ctx.beginPath();
+                ctx.fillStyle = '#0000FF';
+                ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w / 2, 0, 2 * Math.PI, false);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.rect(canvas.width / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w, data.paddleL.h);
+                ctx.fillStyle = '#0000FF';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.fillStyle = '#0000FF';
+                ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y + data.paddleL.h, data.paddleL.w / 2, 0, 2 * Math.PI, false);
+                ctx.fill();
+
+                //Right Paddle
+
+                ctx.beginPath();
+                ctx.fillStyle = '#0000FF';
+                ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w / 2, 0, 2 * Math.PI, false);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.rect(canvas.width / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w, data.paddleR.h);
+                ctx.fillStyle = '#0000FF';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.fillStyle = '#0000FF';
+                ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y + data.paddleR.h, data.paddleR.w / 2, 0, 2 * Math.PI, false);
+                ctx.fill();
+            }
+    }
+</script>
