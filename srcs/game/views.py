@@ -10,11 +10,14 @@ def index(request):
     context = {
         "width_canvas": 1020,
         "height_canvas": 620,
-        "width": 100,
+        "width": 1000,
         "height": 600,
         "paddleh" : 200,
         "paddlew" : 20,
-        "paddled" : 20
+        "paddled" : 20,
+        "paddlespeed" : 50,
+        "vx" : 0,
+        "vy" : 20
     }
     return HttpResponse(template.render(context, request))
     #return HttpResponse(f.read())

@@ -5,7 +5,7 @@
         <title>Jeu</title>
     </head>
     <body onload="frame();">
-        <canvas id="circle" width={{ width_canvas }} height={{ height_canvas }}></canvas>
+         <canvas id="game" width={{ width_canvas }} height={{ height_canvas }} tabindex='1'></canvas>
         <p id="test">Greetings</p>
     </body>
 </html> 
@@ -16,6 +16,7 @@
     let paddleh={{ paddleh }};
     let paddlew={{ paddlew }};
     let paddled={{ paddled }};
+    let paddlespeed={{ paddlespeed }};
 
     //document.getElementById("test").innerHTML = Width;
     //document.getElementById("circle").setAttribute("height", string(Height + 20));
@@ -25,13 +26,15 @@
         h : height,
         w : width,
         t : 0.1,
+        up : false,
+        down : false,
         ball :
         {
-            x : 0,
-            y : 0,
+            x : paddled + 25 - width / 2,
+            y : - 250,
             r : 25,
-            vx : 20,
-            vy : 20
+            vx : {{ vx }},
+            vy : {{ vy }}
         },
         paddleR :
         {
@@ -39,7 +42,6 @@
             y : - paddleh / 2,
             w : paddlew,
             h : paddleh,
-            vx : 0,
             vy : 0
         },
         paddleL :
@@ -48,7 +50,6 @@
             y : - paddleh / 2,
             w : paddlew,
             h : paddleh,
-            vx : 0,
             vy : 0,
         }
     };
@@ -57,51 +58,171 @@
     {
         simulate();
         draw();
-        //window.requestAnimationFrame(frame);
-        setInterval(frame(), 20);
+        window.requestAnimationFrame(frame);
+        //setInterval(frame(), 20);
+    }
+
+    function edgesColl(tr)
+    {
+        if (data.ball.x + data.ball.vx * tr.dt < data.ball.r - data.w / 2)
+        {
+            tr.nvx = - data.ball.vx;
+            tr.dt = (data.ball.r - data.w / 2 - data.ball.x) / data.ball.vx
+        }
+        if (data.ball.x + data.ball.vx * tr.dt > data.w / 2 - data.ball.r)
+        {
+            tr.nvx = - data.ball.vx;
+            tr.dt = (data.w / 2 - data.ball.r - data.ball.x) / data.ball.vx
+        }
+
+        if (data.ball.y + data.ball.vy * tr.dt < data.ball.r - data.h / 2)
+        {
+            tr.nvy = - data.ball.vy;
+            tr.dt = (data.ball.r - data.h / 2 - data.ball.y) / data.ball.vy
+        }
+        if (data.ball.y + data.ball.vy * tr.dt > data.h / 2 - data.ball.r)
+        {
+            tr.nvy = - data.ball.vy;
+            tr.dt = (data.h / 2 - data.ball.r - data.ball.y) / data.ball.vy
+        }
+    }
+
+    function paddlesColl(tr)
+    {
+        let dtc = (data.paddleL.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
+        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleL.y && data.ball.y + data.ball.vy * dtc < data.paddleL.y + paddleh)
+        {
+            tr.dt = dtc;
+            tr.nvx = - data.ball.vx;
+        }
+
+        dtc = (data.paddleL.x - data.ball.x - data.ball.r) / data.ball.vx;
+        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleL.y && data.ball.y + data.ball.vy * dtc < data.paddleL.y + paddleh)
+        {
+            tr.dt = dtc;
+            tr.nvx = - data.ball.vx;
+        }
+
+        dtc = (data.paddleR.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
+        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleR.y && data.ball.y + data.ball.vy * dtc < data.paddleR.y + paddleh)
+        {
+            tr.dt = dtc;
+            tr.nvx = - data.ball.vx;
+        }
+
+        dtc = (data.paddleR.x - data.ball.x - data.ball.r) / data.ball.vx;
+        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleR.y && data.ball.y + data.ball.vy * dtc < data.paddleR.y + paddleh)
+        {
+            tr.dt = dtc;
+            tr.nvx = - data.ball.vx;
+        }
+    }
+
+    function spheres(sphere1, sphere2)
+    {
+        let dx = sphere1.x - sphere2.x;
+        let dy = sphere1.y - sphere2.y;
+        let dvx = sphere1.vx - sphere2.vx;
+        let dvy = sphere1.vy - sphere2.vy;
+    
+        let a = Math.pow(dvx, 2) + Math.pow(dvy, 2);
+        let b = 2 * (dx * dvx + dy * dvy);
+        let c = Math.pow(dx, 2) + Math.pow(dy, 2) - Math.pow(sphere1.r + sphere2.r, 2);
+
+        let delta = Math.pow(b, 2) - 4 * a * c;
+
+        // document.getElementById("test").innerHTML = (- b - Math.sqrt(delta)) / (2 * a);
+        if (delta < 0)
+            return (-1);
+        return ((- b - Math.sqrt(delta)) / (2 * a));
+    }
+
+    function allSpheresColl(tr)
+    {
+        var little =
+        {
+            x : data.paddleL.x + paddlew / 2,
+            y : data.paddleL.y,
+            r : paddlew / 2,
+            vx : 0,
+            vy : data.paddleL.vy
+        };
+
+        let coll = spheres(little, data.ball);
+        if (coll > 0 && coll <= tr.dt)
+        {
+            tr.dt = coll;
+            tr.nvx = - data.ball.vx;
+            tr.nvy = 2 * data.paddleL.vy - data.ball.vy;
+            data.paddleL.vy += 5;
+        }
+
+    }
+
+    function input()
+    {
+        data.paddleL.vy /= 1.2;
+        data.paddleR.vy /= 1.2;
+        if (data.up == true)
+        {
+            data.paddleL.vy += -paddlespeed;
+            data.paddleR.vy += -paddlespeed;
+        }
+        if (data.down == true)
+        {
+            data.paddleL.vy += paddlespeed;
+            data.paddleR.vy += paddlespeed;
+        }
     }
 
     function simulate()
     {
+        input();
         while (data.t > 0)
         {
-            let dt = data.t;
-            let nvx = data.ball.vx;
-            let nvy = data.ball.vy;
-            if (data.ball.x + data.ball.vx * dt < data.ball.r - data.w / 2)
-            {
-                nvx = - data.ball.vx;
-                dt = (data.ball.r - data.w / 2 - data.ball.x) / data.ball.vx
+            let tr = {
+                dt : data.t,
+                nvx : data.ball.vx,
+                nvy : data.ball.vy,
             }
-            if (data.ball.x + data.ball.vx * dt > data.w / 2 - data.ball.r)
-            {
-                nvx = - data.ball.vx;
-                dt = (data.w / 2 - data.ball.r - data.ball.x) / data.ball.vx
-            }
+            edgesColl(tr);
+            paddlesColl(tr);
+            allSpheresColl(tr);
 
-            if (data.ball.y + data.ball.vy * dt < data.ball.r - data.h / 2)
-            {
-                nvy = - data.ball.vy;
-                dt = (data.ball.r - data.h / 2 - data.ball.y) / data.ball.vy
-            }
-            if (data.ball.y + data.ball.vy * dt > data.h / 2 - data.ball.r)
-            {
-                nvy = - data.ball.vy;
-                dt = (data.h / 2 - data.ball.r - data.ball.y) / data.ball.vy
-            }
-            data.t -= dt;
-            data.ball.vx = nvx;
-            data.ball.vy = nvy;
-            data.ball.x += nvx;
-            data.ball.y += nvy;
-            document.getElementById("test").innerHTML = data.t;
+            data.ball.x += data.ball.vx * tr.dt;
+            data.ball.y += data.ball.vy * tr.dt;
+            data.paddleL.y += data.paddleL.vy * tr.dt;
+            data.paddleR.y += data.paddleR.vy * tr.dt;
+
+            data.ball.vx = tr.nvx;
+            data.ball.vy = tr.nvy;
+            data.t -= tr.dt;
         }
         data.t = 0.1;
     }
 
+    function logMessage(message) {
+        document.getElementById('test').innerHTML += `${message}<br>`;
+    }
+
+    document.getElementById('game').addEventListener("keydown", (e) => {
+            if (e.key == 'w' && !e.repeat)
+                data.up = true;
+            if (e.key == 's' && !e.repeat)
+                data.down = true;
+        });
+
+    document.getElementById('game').addEventListener("keyup", (e) => {
+            if (e.key == 'w' && !e.repeat)
+                data.up = false;
+            if (e.key == 's' && !e.repeat)
+                data.down = false;
+        });
+
     function draw()
     {
-        var canvas = document.getElementById('circle');
+        var canvas = document.getElementById('game');
+
         if (canvas.getContext)
             {
                 var ctx = canvas.getContext('2d'); 
