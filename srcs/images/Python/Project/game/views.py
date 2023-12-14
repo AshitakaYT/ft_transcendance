@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.conf import settings
 import os
 import requests
-from .models import UserProfile
+from .models import UserProfile, bgColor
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -12,7 +12,9 @@ def index(request):
     # return HttpResponse(f.read())
 
 def home(request):
-    return render(request, "home.html")
+    color_instance, created = bgColor.objects.get_or_create(pk=1)
+    color_value = color_instance.color
+    return render(request, "home.html", {'color_value': color_value})
     # d = open(os.getcwd() + "/game/templates/home.htm", "r")
     # return HttpResponse(d.read())
 
@@ -27,7 +29,7 @@ def error(request):
 TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
 
 def authenticate_42(request):
-    authorization_url = 'https://api.intra.42.fr/oauth/authorize'
+    authorization_url = settings.OAUTH_URL
     client_id = settings.CLIENT_ID
     redirect_uri = 'https://localhost:8000/callback/'
     scope = 'public'
@@ -43,14 +45,10 @@ def authenticate_42(request):
     }
     auth_url = f"{authorization_url}?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code"
     print('Authentication Successful')
-    response = requests.post(TOKEN_URL, data=auth_params)
-    print(response.status_code)
     return redirect(auth_url)
 
 def callback(request):
     authorization_code = request.GET.get('code')
-
-
     token_params = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
@@ -83,7 +81,6 @@ def callback(request):
             return redirect('/error/')
     else:
         return redirect('/error/')
-    return redirect('/game/')
 
 def RevokeToken(request):
     revocation_url = 'https://api.intra.42.fr/oauth/revoke'
@@ -98,3 +95,9 @@ def RevokeToken(request):
         print('Token revocation failed')
     return redirect("home")
     
+def update_color(request):
+    if request.method == 'POST':
+        colorUpdate, created = bgColor.objects.get_or_create(pk=1)
+        colorUpdate.color = request.POST.get('color', '')
+        colorUpdate.save()
+    return HttpResponse('update successful')

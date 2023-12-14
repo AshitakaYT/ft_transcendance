@@ -1,14 +1,42 @@
 {% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset=utf-8 />
-    <body>
+    <link href="static/css/style.css" rel="stylesheet">
+    <body class="text-center" style="background-color: {{ color_value }};">
+      <div>
         <button id="gotoPong">Play the game</button>
         <button id="sign_in">sign in with 42</button>
         <button id="viewToken">Revoke token</button>
-        <script src="{% static 'js/main.js' %}"></script>
-  </body>
-</head>
-</html>
+      </div>
+      <nav>
+        <div class="nav-center">
+          <h4>color flipper</h4>
+          <ul class="nav-links">
+            <li>
+              <a href="">simple</a>
+            </li>
+            <li>
+              <a href="game">game</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <main>
+        <div class="container">
+          <h2>background color : <span class="color">{{ color_value }}</span></h2>
+          <button class="btn btn-hero" id="btn">click me</button>
+        </div>
+      </main>
+      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+      <script>const csrf_token = "{{ csrf_token }}";</script>
+      <script src="{% static 'js/main.js' %}"></script>
+      <script src="{% static 'js/app.js' %}"></script>
+    </body>
+  </head>
+  </html>

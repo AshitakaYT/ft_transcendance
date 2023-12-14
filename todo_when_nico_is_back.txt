@@ -1,0 +1,13 @@
+Finalement le taf que j'ai fait sur le back n'était qu'à moitié utilie puisque le front sera fait par nico.
+Je dois un maximum comprendre comment fonctionnent mes modules et au passage apprendre le js pour pouvoir transitionner
+sur le front avec lui
+
+- Manipuler les informations présentent dans la db
+- Comprendre comment récupérer, stocker, manipuler un token fournit par oauth
+- Créer une connexion entre django et le front grâce à docker
+- Implémenter la 2FA en attendant
+- Savoir comment stocker l'information que le front m'enverra et aussi pouvoir le renvoyer
+
+Potentiels problèmes pour l'avenir :
+Je n'ai aucune idée de comment fonctionnera la relation entre front et back sachant que tout sera dockerisé séparément
+

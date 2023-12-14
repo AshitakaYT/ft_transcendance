@@ -11,6 +11,9 @@ migrate:
 	- @docker exec -it django python manage.py makemigrations
 	- @docker exec -it django python manage.py migrate
 
+reset:
+	- @docker exec -it django python manage.py migrate game zero
+
 clean:
 	@echo "Cleaning docker containers..."
 	@docker-compose -f srcs/docker-compose.yml down --rmi all --volumes --remove-orphans

@@ -28,6 +28,7 @@ urlpatterns = [
     path('callback/', views.callback, name='callback'),
     path('error/', views.error, name='error'),
     path('token/', views.RevokeToken, name='RevokeToken'),
+    path("update_color/", views.update_color, name="update_color"),
     # path('login/', LoginView.as_view(), name='login'),
     # path('auth/', include('social_django.urls', namespace='social')),
     # path('logout/', LogoutView.as_view(), name='logout'),

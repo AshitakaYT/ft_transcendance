@@ -1,0 +1,23 @@
+https://api.intra.42.fr/oauth/token/info - get information about the token
+https://api.intra.42.fr/v2/me - get information about the current user
+
+Correct format to fetch API information -
+curl -gX GET "https://api.intra.42.fr/<v2 or oauth>/<category>/" -H "Authorization: Bearer <token>"
+
+navigate psql |
+psql -U eavilov -d postgres [login database]
+
+\l [display list of databases] \l+ [displays more]
+\q [quit]
+
+-----
+\dt [display different django models]
+
+SELECT * FROM <name>; [display data from <name>] 
+example:    SELECT * FROM game_bgcolor;
+or:         SELECT * FROM game_userprofile;
+-----
+When a model is modified inside of django, the database is automatically updated
+
+If you try to manually modify a file but have a permission issue, simply type:
+sudo chown -R $USER srcs/

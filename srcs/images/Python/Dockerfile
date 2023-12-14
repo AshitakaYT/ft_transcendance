@@ -15,7 +15,8 @@ RUN	pip install uvicorn && \
     pip install social-auth-app-django && \
     pip install django-oauth-toolkit && \
     pip install requests && \
-    pip install wait-for-it
+    pip install wait-for-it && \
+    pip install django-bootstrap-v5
 
 RUN apt-get update && \
     apt-get install -y \

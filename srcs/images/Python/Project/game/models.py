@@ -8,3 +8,6 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"UserProfile for {self.name}"
+
+class bgColor(models.Model):
+    color = models.CharField(max_length=255)

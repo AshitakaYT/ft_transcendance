@@ -36,9 +36,7 @@ STATIC_ROOT = '/app/game/static/'
 CLIENT_URL = os.getenv('API_URL')
 CLIENT_ID = os.getenv('API_UID')
 CLIENT_SECRET = os.getenv('API_SECRET')
-LOGIN_URL = 'login'
-LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = 'https://localhost:8000/game'
+OAUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -49,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'oauth2_provider',
     'social_django',
+    'bootstrap5',
     'game',
 ]
 
