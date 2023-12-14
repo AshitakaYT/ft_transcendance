@@ -30,8 +30,8 @@
         down : false,
         ball :
         {
-            x : paddled + 25 - width / 2,
-            y : - 250,
+            x : 0,
+            y : 0,
             r : 25,
             vx : {{ vx }},
             vy : {{ vy }}
@@ -56,10 +56,14 @@
     
     function frame()
     {
-        simulate();
-        draw();
-        window.requestAnimationFrame(frame);
+
+        if (!simulate())
+        {
+            draw();
+            window.requestAnimationFrame(frame);
+        }
         //setInterval(frame(), 20);
+
     }
 
     function edgesColl(tr)
@@ -131,7 +135,6 @@
 
         let delta = Math.pow(b, 2) - 4 * a * c;
 
-        // document.getElementById("test").innerHTML = (- b - Math.sqrt(delta)) / (2 * a);
         if (delta < 0)
             return (-1);
         return ((- b - Math.sqrt(delta)) / (2 * a));
@@ -139,6 +142,8 @@
 
     function allSpheresColl(tr)
     {
+        var coll;
+        var smash = 1;
         var little =
         {
             x : data.paddleL.x + paddlew / 2,
@@ -148,15 +153,77 @@
             vy : data.paddleL.vy
         };
 
-        let coll = spheres(little, data.ball);
+        coll = spheres(little, data.ball);
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            tr.nvx = - data.ball.vx;
+            if (data.ball.x >= little.x && data.ball.vx < 0)
+                tr.nvx = - smash * data.ball.vx;
             tr.nvy = 2 * data.paddleL.vy - data.ball.vy;
-            data.paddleL.vy += 5;
+            tr.nlvy = data.paddleL.vy + 5;
         }
 
+        little.y = data.paddleL.y + paddleh;
+
+        coll = spheres(little, data.ball);
+        if (coll > 0 && coll <= tr.dt)
+        {
+            tr.dt = coll;
+            if (data.ball.x >= little.x && data.ball.vx < 0)
+                tr.nvx = - smash * data.ball.vx;
+            tr.nvy = 2 * data.paddleL.vy - data.ball.vy;
+            tr.nlvy = data.paddleL.vy - 5;
+        }
+
+        little.x = data.paddleR.x + paddlew / 2;
+        little.y = data.paddleR.y;
+        little.vy = data.paddleR.vy;
+
+        coll = spheres(little, data.ball);
+        if (coll > 0 && coll <= tr.dt)
+        {
+            tr.dt = coll;
+            if (data.ball.x <= little.x && data.ball.vx > 0)
+                tr.nvx = - smash * data.ball.vx;
+            tr.nvy = 2 * data.paddleR.vy - data.ball.vy;
+            tr.nrvy = data.paddleR.vy + 5;
+        }
+
+        little.y = data.paddleR.y + paddleh;
+
+        coll = spheres(little, data.ball);
+        if (coll > 0 && coll <= tr.dt)
+        {
+            tr.dt = coll;
+            if (data.ball.x <= little.x && data.ball.vx > 0)
+                tr.nvx = - smash * data.ball.vx;
+            tr.nvy = 2 * data.paddleR.vy - data.ball.vy;
+            tr.nrvy = data.paddleR.vy - 5;
+        }
+    }
+
+    function paddles(tr)
+    {
+        if (data.paddleL.y + data.paddleL.vy * tr.dt - paddlew / 2 < - height / 2)
+        {
+            tr.dt = (- height / 2 - data.paddleL.y + paddlew / 2) / data.paddleL.vy;
+            tr.nlvy = 0;
+        }
+        else if (data.paddleL.y + data.paddleL.vy * tr.dt + paddleh + paddlew / 2 > height / 2)
+        {
+            tr.dt = (height / 2 - data.paddleL.y - paddlew / 2 - paddleh) / data.paddleL.vy;
+            tr.nlvy = 0;
+        }
+        if (data.paddleR.y + data.paddleR.vy * tr.dt - paddlew / 2 < - height / 2)
+        {
+            tr.dt = (- height / 2 - data.paddleR.y + paddlew / 2) / data.paddleR.vy;
+            tr.nrvy = 0;
+        }
+        else if (data.paddleR.y + data.paddleR.vy * tr.dt + paddleh + paddlew / 2 > height / 2)
+        {
+            tr.dt = (height / 2 - data.paddleR.y - paddlew / 2 - paddleh) / data.paddleR.vy;
+            tr.nrvy = 0;
+        }
     }
 
     function input()
@@ -165,8 +232,9 @@
         data.paddleR.vy /= 1.2;
         if (data.up == true)
         {
-            data.paddleL.vy += -paddlespeed;
-            data.paddleR.vy += -paddlespeed;
+
+            data.paddleL.vy -= paddlespeed;
+            data.paddleR.vy -= paddlespeed;
         }
         if (data.down == true)
         {
@@ -178,16 +246,25 @@
     function simulate()
     {
         input();
-        while (data.t > 0)
+        var i = 0;
+        while (data.t > 0 && i < 10000)
         {
             let tr = {
                 dt : data.t,
                 nvx : data.ball.vx,
                 nvy : data.ball.vy,
+                nlvy : data.paddleL.vy,
+                nrvy : data.paddleR.vy,
             }
+            document.getElementById("test").innerHTML = " tr.dt = " + tr.dt + " data.t = " + data.t;
+            paddles(tr);
+            logMessage("tr.dt = " + tr.dt);
             edgesColl(tr);
+            logMessage("tr.dt = " + tr.dt);
             paddlesColl(tr);
+            logMessage("tr.dt = " + tr.dt);
             allSpheresColl(tr);
+            logMessage("tr.dt = " + tr.dt);
 
             data.ball.x += data.ball.vx * tr.dt;
             data.ball.y += data.ball.vy * tr.dt;
@@ -196,9 +273,18 @@
 
             data.ball.vx = tr.nvx;
             data.ball.vy = tr.nvy;
+            data.paddleL.vy = tr.nlvy;
+            data.paddleR.vy = tr.nrvy;
             data.t -= tr.dt;
+            i++;
+            if (i == 10000)
+            {
+                logMessage("crash");
+                return (1);
+            }
         }
         data.t = 0.1;
+        return (0);
     }
 
     function logMessage(message) {
@@ -231,10 +317,20 @@
                 // Rectangle game
 
                 ctx.beginPath();
-                ctx.lineWidth = 3;
-                ctx.rect((canvas.width - data.w) / 2, (canvas.height - data.h) / 2, data.w, data.h);
-                ctx.strokeStyle = '#000000';
+                ctx.moveTo((canvas.width - data.w) / 2, (canvas.height - data.h) / 2);
+                ctx.lineTo((canvas.width + data.w) / 2 + data.w, (canvas.height - data.h) / 2);
                 ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo((canvas.width - data.w) / 2, (canvas.height + data.h) / 2);
+                ctx.lineTo((canvas.width + data.w) / 2, (canvas.height + data.h) / 2);
+                ctx.stroke();
+
+                // ctx.beginPath();
+                // ctx.lineWidth = 3;
+                // ctx.rect((canvas.width - data.w) / 2, (canvas.height - data.h) / 2, data.w, data.h);
+                // ctx.strokeStyle = '#000000';
+                // ctx.stroke();
                 
                 //Ball
 
