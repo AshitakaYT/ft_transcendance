@@ -93,32 +93,38 @@
 
     function paddlesColl(tr)
     {
-        let dtc = (data.paddleL.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
-        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleL.y && data.ball.y + data.ball.vy * dtc < data.paddleL.y + paddleh)
-        {
-            tr.dt = dtc;
-            tr.nvx = - data.ball.vx;
-        }
+        var dtc;
+        var paddle;
+        var side;
 
-        dtc = (data.paddleL.x - data.ball.x - data.ball.r) / data.ball.vx;
-        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleL.y && data.ball.y + data.ball.vy * dtc < data.paddleL.y + paddleh)
+        for (let i = 0; i < 4; i++)
         {
-            tr.dt = dtc;
-            tr.nvx = - data.ball.vx;
-        }
-
-        dtc = (data.paddleR.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
-        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleR.y && data.ball.y + data.ball.vy * dtc < data.paddleR.y + paddleh)
-        {
-            tr.dt = dtc;
-            tr.nvx = - data.ball.vx;
-        }
-
-        dtc = (data.paddleR.x - data.ball.x - data.ball.r) / data.ball.vx;
-        if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > data.paddleR.y && data.ball.y + data.ball.vy * dtc < data.paddleR.y + paddleh)
-        {
-            tr.dt = dtc;
-            tr.nvx = - data.ball.vx;
+            switch (i)
+            {
+                case 0:
+                    side = 1;
+                    paddle = data.paddleL;
+                    dtc = (data.paddleL.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
+                    break;
+                case 1:
+                    side = -1;
+                    dtc = (data.paddleL.x - data.ball.x - data.ball.r) / data.ball.vx;
+                    break;
+                case 2:
+                    side = 1;
+                    paddle = data.paddleR;
+                    dtc = (data.paddleR.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
+                    break;
+                case 3:
+                    side = -1;
+                    dtc = (data.paddleR.x - data.ball.x - data.ball.r) / data.ball.vx;
+                    break;
+            }
+            if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > paddle.y && data.ball.y + data.ball.vy * dtc < paddle.y + paddleh)
+            {
+                tr.dt = dtc;
+                tr.nvx = side * Math.abs(data.ball.vx);
+            }
         }
     }
 
@@ -130,6 +136,8 @@
         let dvy = sphere1.vy - sphere2.vy;
     
         let a = Math.pow(dvx, 2) + Math.pow(dvy, 2);
+        if (a == 0)
+            return (-1);
         let b = 2 * (dx * dvx + dy * dvy);
         let c = Math.pow(dx, 2) + Math.pow(dy, 2) - Math.pow(sphere1.r + sphere2.r, 2);
 
@@ -142,8 +150,66 @@
 
     function allSpheresColl(tr)
     {
+        // var coll;
+        // var paddle = data.paddleL;
+        // var smash = 1;
+        // var little =
+        // {
+        //     x : data.paddleL.x + paddlew / 2,
+        //     y : data.paddleL.y,
+        //     r : paddlew / 2,
+        //     vx : 0,
+        //     vy : data.paddleL.vy
+        // };
+
+        // for (let i = 0; i < 4; i++)
+        // {
+        //     switch (i)
+        //     {
+        //         case 0:
+        //             break;
+        //         case 1:
+        //             little.y = data.paddleL.y + paddleh;
+        //             break;
+        //         case 2:
+        //             paddle = data.paddleR;
+        //             little.x = data.paddleR.x + paddlew / 2;
+        //             little.y = data.paddleR.y;
+        //             little.vy = data.paddleR.vy;
+        //             break;
+        //         case 3:
+        //             little.y = data.paddleR.y + paddleh;
+        //             break;
+        //     }
+        //     coll = spheres(little, data.ball);
+        //     if (coll > 0 && coll <= tr.dt)
+        //     {
+        //         tr.dt = coll;
+        //         if (data.ball.x >= little.x && data.ball.vx < 0)
+        //             tr.nvx = - smash * data.ball.vx;
+        //         tr.nvy = 2 * paddle.vy - data.ball.vy;
+        //         switch (i)
+        //         {
+        //             case 0:
+        //                 tr.nlvy = data.paddleL.vy + 5;
+        //                 break;
+        //             case 1:
+        //                 tr.nlvy = data.paddleL.vy - 5;
+        //                 break;
+        //             case 2:
+        //                 tr.nrvy = data.paddleR.vy + 5;
+        //                 break;
+        //             case 3:
+        //                 tr.nrvy = data.paddleR.vy - 5;
+        //                 break;
+        //         }
+
+        //     }
+        // }
+
         var coll;
         var smash = 1;
+        var recoil = 500;
         var little =
         {
             x : data.paddleL.x + paddlew / 2,
@@ -158,9 +224,9 @@
         {
             tr.dt = coll;
             if (data.ball.x >= little.x && data.ball.vx < 0)
-                tr.nvx = - smash * data.ball.vx;
-            tr.nvy = 2 * data.paddleL.vy - data.ball.vy;
-            tr.nlvy = data.paddleL.vy + 5;
+                tr.nvx = smash * Math.abs(data.ball.vx);
+            tr.nvy = - smash * Math.abs(data.ball.vy);
+            tr.nlvy = recoil;
         }
 
         little.y = data.paddleL.y + paddleh;
@@ -170,9 +236,9 @@
         {
             tr.dt = coll;
             if (data.ball.x >= little.x && data.ball.vx < 0)
-                tr.nvx = - smash * data.ball.vx;
-            tr.nvy = 2 * data.paddleL.vy - data.ball.vy;
-            tr.nlvy = data.paddleL.vy - 5;
+                tr.nvx = smash * Math.abs(data.ball.vx);
+            tr.nvy = smash * Math.abs(data.ball.vy);
+            tr.nlvy = - recoil;
         }
 
         little.x = data.paddleR.x + paddlew / 2;
@@ -184,9 +250,9 @@
         {
             tr.dt = coll;
             if (data.ball.x <= little.x && data.ball.vx > 0)
-                tr.nvx = - smash * data.ball.vx;
-            tr.nvy = 2 * data.paddleR.vy - data.ball.vy;
-            tr.nrvy = data.paddleR.vy + 5;
+                tr.nvx = - smash * Math.abs(data.ball.vx);
+            tr.nvy = - smash * Math.abs(data.ball.vy);
+            tr.nrvy = recoil;
         }
 
         little.y = data.paddleR.y + paddleh;
@@ -196,9 +262,9 @@
         {
             tr.dt = coll;
             if (data.ball.x <= little.x && data.ball.vx > 0)
-                tr.nvx = - smash * data.ball.vx;
-            tr.nvy = 2 * data.paddleR.vy - data.ball.vy;
-            tr.nrvy = data.paddleR.vy - 5;
+                tr.nvx = - smash * Math.abs(data.ball.vx);
+            tr.nvy = smash * Math.abs(data.ball.vy);
+            tr.nrvy = - recoil;
         }
     }
 
@@ -256,7 +322,7 @@
                 nlvy : data.paddleL.vy,
                 nrvy : data.paddleR.vy,
             }
-            document.getElementById("test").innerHTML = " tr.dt = " + tr.dt + " data.t = " + data.t;
+            document.getElementById("test").innerHTML = " tr.dt = " + tr.dt + " data.t = " + data.t +"<br>";
             paddles(tr);
             logMessage("tr.dt = " + tr.dt);
             edgesColl(tr);
@@ -265,6 +331,7 @@
             logMessage("tr.dt = " + tr.dt);
             allSpheresColl(tr);
             logMessage("tr.dt = " + tr.dt);
+            logMessage("i = " + i);
 
             data.ball.x += data.ball.vx * tr.dt;
             data.ball.y += data.ball.vy * tr.dt;
@@ -276,12 +343,18 @@
             data.paddleL.vy = tr.nlvy;
             data.paddleR.vy = tr.nrvy;
             data.t -= tr.dt;
+            // if (data.t - tr.dt == data.t)
+            //     data.t -= 0.0001;
             i++;
-            if (i == 10000)
+            if (i == 100000)
             {
+                logMessage("Data ball : " + data.ball.vx + " " + data.ball.vy);
                 logMessage("crash");
                 return (1);
             }
+            logMessage("Data ball : " + data.ball.vx + " " + data.ball.vy);
+            logMessage("Data ball pos : " + data.ball.x + " " + data.ball.y);
+            logMessage("Collision : " + Math.sqrt(Math.pow(data.ball.x - (data.paddleL.x + paddlew / 2), 2) + Math.pow(data.ball.y - data.paddleL.y - paddleh, 2)));
         }
         data.t = 0.1;
         return (0);

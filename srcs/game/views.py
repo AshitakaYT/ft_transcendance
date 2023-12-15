@@ -13,11 +13,11 @@ def index(request):
         "width": 1000,
         "height": 600,
         "paddleh" : 200,
-        "paddlew" : 200,
+        "paddlew" : 20,
         "paddled" : 20,
         "paddlespeed" : 50,
-        "vx" : 50,
-        "vy" : 50
+        "vx" : 5000000,
+        "vy" : 5000000
     }
     return HttpResponse(template.render(context, request))
     #return HttpResponse(f.read())
