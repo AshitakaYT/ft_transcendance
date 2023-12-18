@@ -10,7 +10,7 @@ def index(request):
     context = {
         "width": 1000,
         "height": 600,
-        "paddleh" : 200,
+        "paddleh" : 150,
         "paddlew" : 20,
         "paddled" : 20,
         "paddlespeed" : 250,
