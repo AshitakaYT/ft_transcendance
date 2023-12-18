@@ -3,20 +3,31 @@
     <head>
         <meta charset=utf-8 />
         <title>Jeu</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+            }
+        }
+    </script>
     </head>
-    <body onload="frame();">
-         <canvas id="game" width={{ width_canvas }} height={{ height_canvas }} tabindex='1'></canvas>
         <p id="test">Greetings</p>
     </body>
 </html> 
 
-<script>
+<script type='module'>
 let width={{ width }};
 let height={{ height }};
 let paddleh={{ paddleh }};
 let paddlew={{ paddlew }};
 let paddled={{ paddled }};
 let paddlespeed={{ paddlespeed }};
+let recoil = {{ recoil }};
+let paddlefriction ={{ paddlefriction }};
+let ballfriction = {{ ballfriction }};
+let smash = {{ smash }};
+let recovertime = {{ recovertime }}
 
     //document.getElementById("test").innerHTML = Width;
     //document.getElementById("circle").setAttribute("height", string(Height + 20));
@@ -24,8 +35,6 @@ let paddlespeed={{ paddlespeed }};
 
     var data =
     {
-        h : height,
-        w : width,
         t : 0.1,
         up : false,
         down : false,
@@ -41,41 +50,40 @@ let paddlespeed={{ paddlespeed }};
         {
             x : width / 2 - paddled - paddlew,
             y : - paddleh / 2,
-            w : paddlew,
-            h : paddleh,
-            vy : 0
+            vy : 0,
+            recover : 1
         },
         paddleL :
         {
             x : paddled - width / 2,
             y : - paddleh / 2,
-            w : paddlew,
-            h : paddleh,
             vy : 0,
+            recover : 1
         }
     };
 
-    document.getElementById('game').addEventListener("keydown", (e) => {
-        if (e.key == 'w' && !e.repeat)
-            data.up = true;
+    document.addEventListener("keydown", (e) => {
         if (e.key == 's' && !e.repeat)
+            data.up = true;
+        if (e.key == 'w' && !e.repeat)
             data.down = true;
     });
 
-    document.getElementById('game').addEventListener("keyup", (e) => {
-            if (e.key == 'w' && !e.repeat)
-                data.up = false;
+    document.addEventListener("keyup", (e) => {
             if (e.key == 's' && !e.repeat)
+                data.up = false;
+            if (e.key == 'w' && !e.repeat)
                 data.down = false;
         });
- 
+
     
     function frame()
     {
 
         if (!simulate())
         {
-            draw();
+            //draw();
+            animate();
             window.requestAnimationFrame(frame);
         }
         //setInterval(frame(), 20);
@@ -84,26 +92,26 @@ let paddlespeed={{ paddlespeed }};
 
     function edgesColl(tr)
     {
-        if (data.ball.x + data.ball.vx * tr.dt < data.ball.r - data.w / 2)
+        if (data.ball.x + data.ball.vx * tr.dt < data.ball.r - width / 2)
         {
             tr.nvx = - data.ball.vx;
-            tr.dt = (data.ball.r - data.w / 2 - data.ball.x) / data.ball.vx
+            tr.dt = (data.ball.r - width / 2 - data.ball.x) / data.ball.vx
         }
-        if (data.ball.x + data.ball.vx * tr.dt > data.w / 2 - data.ball.r)
+        if (data.ball.x + data.ball.vx * tr.dt > width / 2 - data.ball.r)
         {
             tr.nvx = - data.ball.vx;
-            tr.dt = (data.w / 2 - data.ball.r - data.ball.x) / data.ball.vx
+            tr.dt = (width / 2 - data.ball.r - data.ball.x) / data.ball.vx
         }
 
-        if (data.ball.y + data.ball.vy * tr.dt < data.ball.r - data.h / 2)
+        if (data.ball.y + data.ball.vy * tr.dt < data.ball.r - height / 2)
         {
             tr.nvy = - data.ball.vy;
-            tr.dt = (data.ball.r - data.h / 2 - data.ball.y) / data.ball.vy
+            tr.dt = (data.ball.r - height / 2 - data.ball.y) / data.ball.vy
         }
-        if (data.ball.y + data.ball.vy * tr.dt > data.h / 2 - data.ball.r)
+        if (data.ball.y + data.ball.vy * tr.dt > height / 2 - data.ball.r)
         {
             tr.nvy = - data.ball.vy;
-            tr.dt = (data.h / 2 - data.ball.r - data.ball.y) / data.ball.vy
+            tr.dt = (height / 2 - data.ball.r - data.ball.y) / data.ball.vy
         }
     }
 
@@ -138,8 +146,10 @@ let paddlespeed={{ paddlespeed }};
             }
             if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > paddle.y && data.ball.y + data.ball.vy * dtc < paddle.y + paddleh)
             {
+                tr.nvx = data.ball.vx / ballfriction;
                 tr.dt = dtc;
-                tr.nvx = side * Math.abs(data.ball.vx);
+                tr.nvx = side * Math.abs(tr.nvx);
+                tr.nvy =  Math.abs(tr.nvx) * ((data.ball.y - paddle.y - paddleh / 2) * 2 / paddleh * 1.5)
             }
         }
     }
@@ -167,8 +177,6 @@ let paddlespeed={{ paddlespeed }};
     function allSpheresColl(tr)
     {
         var coll;
-        var smash = 1;
-        var recoil = 50;
         var little =
         {
             x : data.paddleL.x + paddlew / 2,
@@ -186,6 +194,7 @@ let paddlespeed={{ paddlespeed }};
                 tr.nvx = smash * Math.abs(data.ball.vx);
             tr.nvy = - smash * Math.abs(data.ball.vy);
             tr.nlvy = recoil;
+            data.paddleL.recover = 0;
         }
 
         little.y = data.paddleL.y + paddleh;
@@ -198,6 +207,7 @@ let paddlespeed={{ paddlespeed }};
                 tr.nvx = smash * Math.abs(data.ball.vx);
             tr.nvy = smash * Math.abs(data.ball.vy);
             tr.nlvy = - recoil;
+            data.paddleL.recover = 0;
         }
 
         little.x = data.paddleR.x + paddlew / 2;
@@ -212,6 +222,7 @@ let paddlespeed={{ paddlespeed }};
                 tr.nvx = - smash * Math.abs(data.ball.vx);
             tr.nvy = - smash * Math.abs(data.ball.vy);
             tr.nrvy = recoil;
+            data.paddleR.recover = 0;
         }
 
         little.y = data.paddleR.y + paddleh;
@@ -224,6 +235,7 @@ let paddlespeed={{ paddlespeed }};
                 tr.nvx = - smash * Math.abs(data.ball.vx);
             tr.nvy = smash * Math.abs(data.ball.vy);
             tr.nrvy = - recoil;
+            data.paddleR.recover = 0;
         }
     }
 
@@ -253,18 +265,24 @@ let paddlespeed={{ paddlespeed }};
 
     function input()
     {
-        data.paddleL.vy /= 1.2;
-        data.paddleR.vy /= 1.2;
+        data.paddleL.vy /= paddlefriction;
+        data.paddleR.vy /= paddlefriction;
+        data.paddleL.recover += data.t / recovertime;
+        data.paddleR.recover += data.t / recovertime;
+        if (data.paddleL.recover > 1)
+            data.paddleL.recover = 1;
+        if (data.paddleR.recover > 1)
+            data.paddleR.recover = 1;
         if (data.up == true)
         {
 
-            data.paddleL.vy -= paddlespeed;
-            data.paddleR.vy -= paddlespeed;
+            data.paddleL.vy -= paddlespeed * data.paddleL.recover * data.t;
+            data.paddleR.vy -= paddlespeed * data.paddleR.recover * data.t;
         }
         if (data.down == true)
         {
-            data.paddleL.vy += paddlespeed;
-            data.paddleR.vy += paddlespeed;
+            data.paddleL.vy += paddlespeed * data.paddleL.recover * data.t;
+            data.paddleR.vy += paddlespeed * data.paddleR.recover * data.t;
         }
     }
 
@@ -299,6 +317,15 @@ let paddlespeed={{ paddlespeed }};
 
             data.ball.vx = tr.nvx;
             data.ball.vy = tr.nvy;
+            if (data.ball.vx > 100000)
+                data.ball.vx = 100000;
+            if (data.ball.vx < -100000)
+                data.ball.vx = -100000;
+            if (data.ball.vy > 100000)
+                data.ball.vy = 100000;
+            if (data.ball.vy < -100000)
+                data.ball.vy = -100000;
+
             data.paddleL.vy = tr.nlvy;
             data.paddleR.vy = tr.nrvy;
             data.t -= tr.dt;
@@ -307,8 +334,8 @@ let paddlespeed={{ paddlespeed }};
             i++;
             if (i == 100000)
             {
-                logMessage("Data ball : " + data.ball.vx + " " + data.ball.vy);
-                logMessage("crash");
+                // logMessage("Data ball : " + data.ball.vx + " " + data.ball.vy);
+                // logMessage("crash");
                 return (1);
             }
             logMessage("Data ball : " + data.ball.vx + " " + data.ball.vy);
@@ -323,75 +350,175 @@ let paddlespeed={{ paddlespeed }};
         document.getElementById('test').innerHTML += `${message}<br>`;
     }
 
-    function draw()
-    {
-        var canvas = document.getElementById('game');
+    // Partie de Julien
+    import * as THREE from 'three';
+    let my=0;
+    let light_pow = 100
+    let fov_deg = 0.6;
+    let fov_rad = fov_deg * Math.PI/180;
 
-        if (canvas.getContext)
-            {
-                var ctx = canvas.getContext('2d'); 
-                ctx.clearRect(0, 0, canvas.width , canvas.height);
-                
-                // Rectangle game
 
-                ctx.beginPath();
-                ctx.moveTo((canvas.width - data.w) / 2, (canvas.height - data.h) / 2);
-                ctx.lineTo((canvas.width + data.w) / 2 + data.w, (canvas.height - data.h) / 2);
-                ctx.stroke();
 
-                ctx.beginPath();
-                ctx.moveTo((canvas.width - data.w) / 2, (canvas.height + data.h) / 2);
-                ctx.lineTo((canvas.width + data.w) / 2, (canvas.height + data.h) / 2);
-                ctx.stroke();
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0.01,0.01,0.01);
 
-                // ctx.beginPath();
-                // ctx.lineWidth = 3;
-                // ctx.rect((canvas.width - data.w) / 2, (canvas.height - data.h) / 2, data.w, data.h);
-                // ctx.strokeStyle = '#000000';
-                // ctx.stroke();
-                
-                //Ball
+    const camera = new THREE.PerspectiveCamera( fov_deg, window.innerWidth / window.innerHeight, 0.1, 100000 );
+    camera.position.set(0,0,Math.max(width, height)/(2.*Math.tan(fov_rad/2.)));
+    camera.lookAt(0,0,0);
 
-                ctx.beginPath();
-                ctx.fillStyle = '#FF0000';
-                ctx.arc(data.ball.x + canvas.width / 2, data.ball.y + canvas.height / 2, data.ball.r, 0, 2 * Math.PI, false);
-                ctx.fill();
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild( renderer.domElement );
+    //document.addEventListener("mousemove",mouseevent);
+    window.addEventListener("resize",windowsresize);
 
-                // Left Paddle
+    const geometry_pad = new THREE.CapsuleGeometry( paddlew/2., paddleh, 10, 30 );
+    const geometry_ball = new THREE.SphereGeometry( data.ball.r, 10, 30 );
+    const geometry_edge = new THREE.CylinderGeometry( paddlew, paddlew, width*2., 60 );
+    const material_lit = new THREE.MeshPhongMaterial( { color: 0xffffff } );
+    const material_unlit = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
 
-                ctx.beginPath();
-                ctx.fillStyle = '#0000FF';
-                ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w / 2, 0, 2 * Math.PI, false);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.lineWidth = 3;
-                ctx.rect(canvas.width / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w, data.paddleL.h);
-                ctx.fillStyle = '#0000FF';
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.fillStyle = '#0000FF';
-                ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y + data.paddleL.h, data.paddleL.w / 2, 0, 2 * Math.PI, false);
-                ctx.fill();
-
-                //Right Paddle
-
-                ctx.beginPath();
-                ctx.fillStyle = '#0000FF';
-                ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w / 2, 0, 2 * Math.PI, false);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.lineWidth = 3;
-                ctx.rect(canvas.width / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w, data.paddleR.h);
-                ctx.fillStyle = '#0000FF';
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.fillStyle = '#0000FF';
-                ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y + data.paddleR.h, data.paddleR.w / 2, 0, 2 * Math.PI, false);
-                ctx.fill();
-            }
+    let arrball = [];
+    let len = 10;
+    arrball.length = len;
+    for (let i=0; i<len; ++i) {
+        arrball[i] = new THREE.Mesh( geometry_ball, material_unlit );
+        arrball[i].scale.set((i+1)/len,(i+1)/len,(i+1)/len);
+        scene.add(arrball[i]);
     }
+
+    const padl = new THREE.Mesh( geometry_pad, material_lit );
+    scene.add(padl);
+    padl.castShadow = true;
+
+    const padr = new THREE.Mesh( geometry_pad, material_lit );
+    scene.add(padr);
+    padr.castShadow = true;
+
+    const edgeu = new THREE.Mesh( geometry_edge, material_lit );
+    scene.add(edgeu);
+    edgeu.receiveShadow = true;
+    edgeu.rotation.z = 3.1415926535/2;
+    edgeu.position.y = height/2+paddlew;
+
+    const edged = new THREE.Mesh( geometry_edge, material_lit );
+    scene.add(edged);
+    edged.receiveShadow = true;
+    edged.rotation.z = 3.1415926535/2;
+    edged.position.y = -height/2-paddlew;
+
+    const light = new THREE.PointLight(0x0000ff, data.ball.r * data.ball.r * light_pow);
+    light.castShadow=true;
+    scene.add(light);
+
+    const amblight = new THREE.AmbientLight(0xffffff, .01);
+    scene.add(amblight);
+
+    let rot = 0;
+
+
+    function animate() {
+        light.color.offsetHSL(0.003,0,0);
+        material_unlit.color.offsetHSL(0.003,0,0);
+
+        for (let i=0; i<len-1; ++i) {
+            arrball[i].position.set(arrball[i+1].position.x,arrball[i+1].position.y,arrball[i+1].position.z,);
+        }
+        arrball[len-1].position.set(data.ball.x,data.ball.y,0);
+        light.position.set(data.ball.x,data.ball.y,0);
+        padl.position.set(data.paddleL.x + paddlew/2,data.paddleL.y + paddleh/2,0);
+        padr.position.set(data.paddleR.x + paddlew/2,data.paddleR.y + paddleh/2,0);
+
+        rot += 0.002;
+        //camera.position.set(Math.sin(rot)*5,0,Math.cos(rot)*5);
+        //camera.up.set(Math.cos(rot)*5,0,Math.sin(rot)*-5);
+        camera.lookAt(0,0,0);
+
+        renderer.render( scene, camera );
+    }
+
+    function mouseevent(event) {
+        my = event.clientY/window.innerHeight*-2+1;
+    }
+
+    function windowsresize() {
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    }
+
+    frame();
+
+    // function draw()
+    // {
+    //     var canvas = document.getElementById('game');
+
+    //     if (canvas.getContext)
+    //         {
+    //             var ctx = canvas.getContext('2d'); 
+    //             ctx.clearRect(0, 0, canvas.width , canvas.height);
+                
+    //             // Rectangle game
+
+    //             ctx.beginPath();
+    //             ctx.moveTo((canvas.width - data.w) / 2, (canvas.height - data.h) / 2);
+    //             ctx.lineTo((canvas.width + data.w) / 2 + data.w, (canvas.height - data.h) / 2);
+    //             ctx.stroke();
+
+    //             ctx.beginPath();
+    //             ctx.moveTo((canvas.width - data.w) / 2, (canvas.height + data.h) / 2);
+    //             ctx.lineTo((canvas.width + data.w) / 2, (canvas.height + data.h) / 2);
+    //             ctx.stroke();
+
+    //             // ctx.beginPath();
+    //             // ctx.lineWidth = 3;
+    //             // ctx.rect((canvas.width - data.w) / 2, (canvas.height - data.h) / 2, data.w, data.h);
+    //             // ctx.strokeStyle = '#000000';
+    //             // ctx.stroke();
+                
+    //             //Ball
+
+    //             ctx.beginPath();
+    //             ctx.fillStyle = '#FF0000';
+    //             ctx.arc(data.ball.x + canvas.width / 2, data.ball.y + canvas.height / 2, data.ball.r, 0, 2 * Math.PI, false);
+    //             ctx.fill();
+
+    //             // Left Paddle
+
+    //             ctx.beginPath();
+    //             ctx.fillStyle = '#0000FF';
+    //             ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.fill();
+
+    //             ctx.beginPath();
+    //             ctx.lineWidth = 3;
+    //             ctx.rect(canvas.width / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w, data.paddleL.h);
+    //             ctx.fillStyle = '#0000FF';
+    //             ctx.fill();
+
+    //             ctx.beginPath();
+    //             ctx.fillStyle = '#0000FF';
+    //             ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y + data.paddleL.h, data.paddleL.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.fill();
+
+    //             //Right Paddle
+
+    //             ctx.beginPath();
+    //             ctx.fillStyle = '#0000FF';
+    //             ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.fill();
+
+    //             ctx.beginPath();
+    //             ctx.lineWidth = 3;
+    //             ctx.rect(canvas.width / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w, data.paddleR.h);
+    //             ctx.fillStyle = '#0000FF';
+    //             ctx.fill();
+
+    //             ctx.beginPath();
+    //             ctx.fillStyle = '#0000FF';
+    //             ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y + data.paddleR.h, data.paddleR.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.fill();
+    //         }
+    // }
 </script>

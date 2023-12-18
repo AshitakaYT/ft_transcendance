@@ -8,19 +8,19 @@ def index(request):
     #f = open(os.getcwd() + "/game/test.html", "r")
     template = loader.get_template("game/game.html")
     context = {
-        "width_canvas": 1020,
-        "height_canvas": 620,
         "width": 1000,
         "height": 600,
         "paddleh" : 200,
         "paddlew" : 20,
         "paddled" : 20,
-        "paddlespeed" : 50,
+        "paddlespeed" : 250,
         "vx" : 50,
         "vy" : 50,
-        "recoil" : 100,
-        "paddlefriction" : 1.2,
-        "ballfriction" : 1,
+        "recoil" : 150,
+        "paddlefriction" : 1.1,
+        "ballfriction" : 1.1,
+        "smash" : 2,
+        "recovertime" : 2
     }
     return HttpResponse(template.render(context, request))
     #return HttpResponse(f.read())
