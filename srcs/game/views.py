@@ -16,8 +16,11 @@ def index(request):
         "paddlew" : 20,
         "paddled" : 20,
         "paddlespeed" : 50,
-        "vx" : 5000000,
-        "vy" : 5000000
+        "vx" : 50,
+        "vy" : 50,
+        "recoil" : 100,
+        "paddlefriction" : 1.2,
+        "ballfriction" : 1,
     }
     return HttpResponse(template.render(context, request))
     #return HttpResponse(f.read())

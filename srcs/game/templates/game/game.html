@@ -11,15 +11,16 @@
 </html> 
 
 <script>
-    let width={{ width }};
-    let height={{ height }};
-    let paddleh={{ paddleh }};
-    let paddlew={{ paddlew }};
-    let paddled={{ paddled }};
-    let paddlespeed={{ paddlespeed }};
+let width={{ width }};
+let height={{ height }};
+let paddleh={{ paddleh }};
+let paddlew={{ paddlew }};
+let paddled={{ paddled }};
+let paddlespeed={{ paddlespeed }};
 
     //document.getElementById("test").innerHTML = Width;
     //document.getElementById("circle").setAttribute("height", string(Height + 20));
+
 
     var data =
     {
@@ -53,6 +54,21 @@
             vy : 0,
         }
     };
+
+    document.getElementById('game').addEventListener("keydown", (e) => {
+        if (e.key == 'w' && !e.repeat)
+            data.up = true;
+        if (e.key == 's' && !e.repeat)
+            data.down = true;
+    });
+
+    document.getElementById('game').addEventListener("keyup", (e) => {
+            if (e.key == 'w' && !e.repeat)
+                data.up = false;
+            if (e.key == 's' && !e.repeat)
+                data.down = false;
+        });
+ 
     
     function frame()
     {
@@ -150,66 +166,9 @@
 
     function allSpheresColl(tr)
     {
-        // var coll;
-        // var paddle = data.paddleL;
-        // var smash = 1;
-        // var little =
-        // {
-        //     x : data.paddleL.x + paddlew / 2,
-        //     y : data.paddleL.y,
-        //     r : paddlew / 2,
-        //     vx : 0,
-        //     vy : data.paddleL.vy
-        // };
-
-        // for (let i = 0; i < 4; i++)
-        // {
-        //     switch (i)
-        //     {
-        //         case 0:
-        //             break;
-        //         case 1:
-        //             little.y = data.paddleL.y + paddleh;
-        //             break;
-        //         case 2:
-        //             paddle = data.paddleR;
-        //             little.x = data.paddleR.x + paddlew / 2;
-        //             little.y = data.paddleR.y;
-        //             little.vy = data.paddleR.vy;
-        //             break;
-        //         case 3:
-        //             little.y = data.paddleR.y + paddleh;
-        //             break;
-        //     }
-        //     coll = spheres(little, data.ball);
-        //     if (coll > 0 && coll <= tr.dt)
-        //     {
-        //         tr.dt = coll;
-        //         if (data.ball.x >= little.x && data.ball.vx < 0)
-        //             tr.nvx = - smash * data.ball.vx;
-        //         tr.nvy = 2 * paddle.vy - data.ball.vy;
-        //         switch (i)
-        //         {
-        //             case 0:
-        //                 tr.nlvy = data.paddleL.vy + 5;
-        //                 break;
-        //             case 1:
-        //                 tr.nlvy = data.paddleL.vy - 5;
-        //                 break;
-        //             case 2:
-        //                 tr.nrvy = data.paddleR.vy + 5;
-        //                 break;
-        //             case 3:
-        //                 tr.nrvy = data.paddleR.vy - 5;
-        //                 break;
-        //         }
-
-        //     }
-        // }
-
         var coll;
         var smash = 1;
-        var recoil = 500;
+        var recoil = 50;
         var little =
         {
             x : data.paddleL.x + paddlew / 2,
@@ -363,20 +322,6 @@
     function logMessage(message) {
         document.getElementById('test').innerHTML += `${message}<br>`;
     }
-
-    document.getElementById('game').addEventListener("keydown", (e) => {
-            if (e.key == 'w' && !e.repeat)
-                data.up = true;
-            if (e.key == 's' && !e.repeat)
-                data.down = true;
-        });
-
-    document.getElementById('game').addEventListener("keyup", (e) => {
-            if (e.key == 'w' && !e.repeat)
-                data.up = false;
-            if (e.key == 's' && !e.repeat)
-                data.down = false;
-        });
 
     function draw()
     {
