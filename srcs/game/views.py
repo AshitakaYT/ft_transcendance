@@ -14,11 +14,10 @@ def index(request):
         "paddlew" : 20,
         "paddled" : 20,
         "paddlespeed" : 250,
-        "vx" : 50,
-        "vy" : 50,
+        "ballv" : 100000,
         "recoil" : 150,
         "paddlefriction" : 1.1,
-        "ballfriction" : 1.1,
+        "ballfriction" : 1.3,
         "smash" : 2,
         "recovertime" : 2
     }

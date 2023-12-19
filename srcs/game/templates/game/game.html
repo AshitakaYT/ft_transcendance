@@ -28,6 +28,7 @@ let paddlefriction ={{ paddlefriction }};
 let ballfriction = {{ ballfriction }};
 let smash = {{ smash }};
 let recovertime = {{ recovertime }}
+let ballv =  {{ ballv }};
 
     //document.getElementById("test").innerHTML = Width;
     //document.getElementById("circle").setAttribute("height", string(Height + 20));
@@ -43,8 +44,8 @@ let recovertime = {{ recovertime }}
             x : 0,
             y : 0,
             r : 25,
-            vx : {{ vx }},
-            vy : {{ vy }}
+            rv : ballv,
+            tv : 1,
         },
         paddleR :
         {
@@ -92,26 +93,26 @@ let recovertime = {{ recovertime }}
 
     function edgesColl(tr)
     {
-        if (data.ball.x + data.ball.vx * tr.dt < data.ball.r - width / 2)
+        if (data.ball.x + ballvx(data.ball) * tr.dt < data.ball.r - width / 2)
         {
-            tr.nvx = - data.ball.vx;
-            tr.dt = (data.ball.r - width / 2 - data.ball.x) / data.ball.vx
+            tr.ntv = - data.ball.tv + Math.PI;
+            tr.dt = (data.ball.r - width / 2 - data.ball.x) / ballvx(data.ball)
         }
-        if (data.ball.x + data.ball.vx * tr.dt > width / 2 - data.ball.r)
+        if (data.ball.x + ballvx(data.ball) * tr.dt > width / 2 - data.ball.r)
         {
-            tr.nvx = - data.ball.vx;
-            tr.dt = (width / 2 - data.ball.r - data.ball.x) / data.ball.vx
+            tr.ntv = - data.ball.tv + Math.PI;
+            tr.dt = (width / 2 - data.ball.r - data.ball.x) / ballvx(data.ball)
         }
 
-        if (data.ball.y + data.ball.vy * tr.dt < data.ball.r - height / 2)
+        if (data.ball.y + ballvy(data.ball) * tr.dt < data.ball.r - height / 2)
         {
-            tr.nvy = - data.ball.vy;
-            tr.dt = (data.ball.r - height / 2 - data.ball.y) / data.ball.vy
+            tr.ntv = - data.ball.tv;
+            tr.dt = (data.ball.r - height / 2 - data.ball.y) / ballvy(data.ball)
         }
-        if (data.ball.y + data.ball.vy * tr.dt > height / 2 - data.ball.r)
+        if (data.ball.y + ballvy(data.ball) * tr.dt > height / 2 - data.ball.r)
         {
-            tr.nvy = - data.ball.vy;
-            tr.dt = (height / 2 - data.ball.r - data.ball.y) / data.ball.vy
+            tr.ntv = - data.ball.tv;
+            tr.dt = (height / 2 - data.ball.r - data.ball.y) / ballvy(data.ball)
         }
     }
 
@@ -128,28 +129,27 @@ let recovertime = {{ recovertime }}
                 case 0:
                     side = 1;
                     paddle = data.paddleL;
-                    dtc = (data.paddleL.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
+                    dtc = (data.paddleL.x + paddlew - data.ball.x + data.ball.r) / ballvx(data.ball);
                     break;
                 case 1:
                     side = -1;
-                    dtc = (data.paddleL.x - data.ball.x - data.ball.r) / data.ball.vx;
+                    dtc = (data.paddleL.x - data.ball.x - data.ball.r) / ballvx(data.ball);
                     break;
                 case 2:
                     side = 1;
                     paddle = data.paddleR;
-                    dtc = (data.paddleR.x + paddlew - data.ball.x + data.ball.r) / data.ball.vx;
+                    dtc = (data.paddleR.x + paddlew - data.ball.x + data.ball.r) / ballvx(data.ball);
                     break;
                 case 3:
                     side = -1;
-                    dtc = (data.paddleR.x - data.ball.x - data.ball.r) / data.ball.vx;
+                    dtc = (data.paddleR.x - data.ball.x - data.ball.r) / ballvx(data.ball);
                     break;
             }
-            if (dtc > 0 && dtc <= tr.dt && data.ball.y + data.ball.vy * dtc > paddle.y && data.ball.y + data.ball.vy * dtc < paddle.y + paddleh)
+            if (dtc > 0 && dtc <= tr.dt && data.ball.y + ballvy(data.ball) * dtc > paddle.y && data.ball.y + ballvy(data.ball) * dtc < paddle.y + paddleh)
             {
-                tr.nvx = data.ball.vx / ballfriction;
+                tr.rv = data.ball.rv / ballfriction;
                 tr.dt = dtc;
-                tr.nvx = side * Math.abs(tr.nvx);
-                tr.nvy =  Math.abs(tr.nvx) * ((data.ball.y - paddle.y - paddleh / 2) * 2 / paddleh * 1.5)
+                tr.ntv = - data.ball.tv + Math.PI;
             }
         }
     }
@@ -275,7 +275,6 @@ let recovertime = {{ recovertime }}
             data.paddleR.recover = 1;
         if (data.up == true)
         {
-
             data.paddleL.vy -= paddlespeed * data.paddleL.recover * data.t;
             data.paddleR.vy -= paddlespeed * data.paddleR.recover * data.t;
         }
@@ -284,7 +283,14 @@ let recovertime = {{ recovertime }}
             data.paddleL.vy += paddlespeed * data.paddleL.recover * data.t;
             data.paddleR.vy += paddlespeed * data.paddleR.recover * data.t;
         }
+
+        //IA input
+
+
     }
+
+    function ballvx(ball) {return ball.rv * Math.cos(ball.tv);}
+    function ballvy(ball) {return ball.rv * Math.sin(ball.tv);}
 
     function simulate()
     {
@@ -294,8 +300,8 @@ let recovertime = {{ recovertime }}
         {
             let tr = {
                 dt : data.t,
-                nvx : data.ball.vx,
-                nvy : data.ball.vy,
+                nrv : data.ball.rv,
+                ntv : data.ball.tv,
                 nlvy : data.paddleL.vy,
                 nrvy : data.paddleR.vy,
             }
@@ -304,19 +310,19 @@ let recovertime = {{ recovertime }}
             logMessage("tr.dt = " + tr.dt);
             edgesColl(tr);
             logMessage("tr.dt = " + tr.dt);
-            paddlesColl(tr);
+            //paddlesColl(tr);
             logMessage("tr.dt = " + tr.dt);
             allSpheresColl(tr);
             logMessage("tr.dt = " + tr.dt);
             logMessage("i = " + i);
 
-            data.ball.x += data.ball.vx * tr.dt;
-            data.ball.y += data.ball.vy * tr.dt;
+            data.ball.x += ballvx(data.ball) * tr.dt;
+            data.ball.y += ballvy(data.ball) * tr.dt;
             data.paddleL.y += data.paddleL.vy * tr.dt;
             data.paddleR.y += data.paddleR.vy * tr.dt;
 
-            data.ball.vx = tr.nvx;
-            data.ball.vy = tr.nvy;
+            data.ball.rv = tr.nrv;
+            data.ball.tv = tr.ntv;
             if (data.ball.vx > 100000)
                 data.ball.vx = 100000;
             if (data.ball.vx < -100000)
