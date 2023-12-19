@@ -73,7 +73,7 @@ def callback(request):
             print(user_profile.token)
             user_profile.save()
             request.session['access_token'] = access_token
-            return redirect('/game/')
+            return redirect('home')
         except Exception as e:
             print(e)
             print('Error')

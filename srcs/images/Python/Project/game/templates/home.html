@@ -9,23 +9,26 @@
     <meta charset=utf-8 />
     <link href="static/css/style.css" rel="stylesheet">
     <body class="text-center" style="background-color: {{ color_value }};">
-      <div>
-        <button id="gotoPong">Play the game</button>
-        <button id="sign_in">sign in with 42</button>
-        <button id="viewToken">Revoke token</button>
-      </div>
       <nav>
         <div class="nav-center">
           <h4>color flipper</h4>
           <ul class="nav-links">
             <li>
-              <a href="">simple</a>
+              <a href="login">sign in</a>
             </li>
             <li>
-              <a href="game">game</a>
+              <a href="game">play</a>
+            </li>
+            <li>
+              <button class=>
             </li>
           </ul>
         </div>
+        {% comment %} <div>
+          <button id="gotoPong">Play the game</button>
+          <button id="sign_in">sign in with 42</button>
+          <button id="viewToken">Revoke token</button>
+        </div> {% endcomment %}
       </nav>
       <main>
         <div class="container">
@@ -33,10 +36,12 @@
           <button class="btn btn-hero" id="btn">click me</button>
         </div>
       </main>
-      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-      <script>const csrf_token = "{{ csrf_token }}";</script>
-      <script src="{% static 'js/main.js' %}"></script>
-      <script src="{% static 'js/app.js' %}"></script>
+      <!-- scripts --> 
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> 
+        <script>const csrf_token = "{{ csrf_token }}";</script>
+        <script src="{% static 'js/main.js' %}"></script>
+        <script src="{% static 'js/app.js' %}"></script>
+        <script src="{% static 'js/pong.js' %}"></script>
     </body>
   </head>
   </html>
