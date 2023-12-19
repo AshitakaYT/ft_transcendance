@@ -14,7 +14,7 @@ def index(request):
         "paddlew" : 20,
         "paddled" : 20,
         "paddlespeed" : 250,
-        "ballv" : 100000,
+        "ballv" : 50,
         "recoil" : 150,
         "paddlefriction" : 1.1,
         "ballfriction" : 1.3,

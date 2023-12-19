@@ -158,9 +158,9 @@ let ballv =  {{ ballv }};
     {
         let dx = sphere1.x - sphere2.x;
         let dy = sphere1.y - sphere2.y;
-        let dvx = sphere1.vx - sphere2.vx;
-        let dvy = sphere1.vy - sphere2.vy;
-    
+        let dvx = ballvx(sphere1) - ballvx(sphere2);
+        let dvy = ballvy(sphere1) - ballvy(sphere2);
+
         let a = Math.pow(dvx, 2) + Math.pow(dvy, 2);
         if (a == 0)
             return (-1);
@@ -182,17 +182,18 @@ let ballv =  {{ ballv }};
             x : data.paddleL.x + paddlew / 2,
             y : data.paddleL.y,
             r : paddlew / 2,
-            vx : 0,
-            vy : data.paddleL.vy
+            rv : Math.PI / 2,
+            tv : data.paddleL.vy
         };
 
         coll = spheres(little, data.ball);
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            if (data.ball.x >= little.x && data.ball.vx < 0)
-                tr.nvx = smash * Math.abs(data.ball.vx);
-            tr.nvy = - smash * Math.abs(data.ball.vy);
+            // if (data.ball.x >= little.x && data.ball.vx < 0)
+            //     tr.nvx = smash * Math.abs(data.ball.vx);
+            // tr.nvy = - smash * Math.abs(data.ball.vy);
+            tr.ntv = data.ball.tv + Math.PI;
             tr.nlvy = recoil;
             data.paddleL.recover = 0;
         }
@@ -203,24 +204,26 @@ let ballv =  {{ ballv }};
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            if (data.ball.x >= little.x && data.ball.vx < 0)
-                tr.nvx = smash * Math.abs(data.ball.vx);
-            tr.nvy = smash * Math.abs(data.ball.vy);
+            // if (data.ball.x >= little.x && data.ball.vx < 0)
+            //     tr.nvx = smash * Math.abs(data.ball.vx);
+            // tr.nvy = smash * Math.abs(data.ball.vy);
+            tr.ntv = data.ball.tv + Math.PI;
             tr.nlvy = - recoil;
             data.paddleL.recover = 0;
         }
 
         little.x = data.paddleR.x + paddlew / 2;
         little.y = data.paddleR.y;
-        little.vy = data.paddleR.vy;
+        little.tv = data.paddleR.vy;
 
         coll = spheres(little, data.ball);
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            if (data.ball.x <= little.x && data.ball.vx > 0)
-                tr.nvx = - smash * Math.abs(data.ball.vx);
-            tr.nvy = - smash * Math.abs(data.ball.vy);
+            // if (data.ball.x <= little.x && data.ball.vx > 0)
+            //     tr.nvx = - smash * Math.abs(data.ball.vx);
+            // tr.nvy = - smash * Math.abs(data.ball.vy);
+            tr.ntv = data.ball.tv + Math.PI;
             tr.nrvy = recoil;
             data.paddleR.recover = 0;
         }
@@ -231,9 +234,10 @@ let ballv =  {{ ballv }};
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            if (data.ball.x <= little.x && data.ball.vx > 0)
-                tr.nvx = - smash * Math.abs(data.ball.vx);
-            tr.nvy = smash * Math.abs(data.ball.vy);
+            // if (data.ball.x <= little.x && data.ball.vx > 0)
+            //     tr.nvx = - smash * Math.abs(data.ball.vx);
+            // tr.nvy = smash * Math.abs(data.ball.vy);
+            tr.ntv = data.ball.tv + Math.PI;
             tr.nrvy = - recoil;
             data.paddleR.recover = 0;
         }
@@ -310,7 +314,7 @@ let ballv =  {{ ballv }};
             logMessage("tr.dt = " + tr.dt);
             edgesColl(tr);
             logMessage("tr.dt = " + tr.dt);
-            //paddlesColl(tr);
+            paddlesColl(tr);
             logMessage("tr.dt = " + tr.dt);
             allSpheresColl(tr);
             logMessage("tr.dt = " + tr.dt);
@@ -360,7 +364,7 @@ let ballv =  {{ ballv }};
     import * as THREE from 'three';
     let my=0;
     let light_pow = 100
-    let fov_deg = 0.6;
+    let fov_deg = 1;
     let fov_rad = fov_deg * Math.PI/180;
 
 
