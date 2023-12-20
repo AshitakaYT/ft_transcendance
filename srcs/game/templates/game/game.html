@@ -30,6 +30,8 @@ let smash = {{ smash }};
 let recovertime = {{ recovertime }}
 let ballv =  {{ ballv }};
 
+let PI = Math.PI;
+
     //document.getElementById("test").innerHTML = Width;
     //document.getElementById("circle").setAttribute("height", string(Height + 20));
 
@@ -94,24 +96,30 @@ let ballv =  {{ ballv }};
     function edgesColl(tr)
     {
         if (data.ball.x + ballvx(data.ball) * tr.dt < data.ball.r - width / 2)
-        {
-            tr.ntv = - data.ball.tv + Math.PI;
+        {            
+            tr.ntv = 0;
+            tr.rv = ballv;
+
+            //tr.ntv = sanangle(- data.ball.tv + PI);
             tr.dt = (data.ball.r - width / 2 - data.ball.x) / ballvx(data.ball)
         }
         if (data.ball.x + ballvx(data.ball) * tr.dt > width / 2 - data.ball.r)
         {
-            tr.ntv = - data.ball.tv + Math.PI;
+            tr.ntv = 0;
+            tr.rv = ballv;
+
+            //tr.ntv = sanangle(- data.ball.tv + PI);
             tr.dt = (width / 2 - data.ball.r - data.ball.x) / ballvx(data.ball)
         }
 
         if (data.ball.y + ballvy(data.ball) * tr.dt < data.ball.r - height / 2)
         {
-            tr.ntv = - data.ball.tv;
+            tr.ntv = sanangle(- data.ball.tv);
             tr.dt = (data.ball.r - height / 2 - data.ball.y) / ballvy(data.ball)
         }
         if (data.ball.y + ballvy(data.ball) * tr.dt > height / 2 - data.ball.r)
         {
-            tr.ntv = - data.ball.tv;
+            tr.ntv = sanangle(- data.ball.tv);
             tr.dt = (height / 2 - data.ball.r - data.ball.y) / ballvy(data.ball)
         }
     }
@@ -132,11 +140,11 @@ let ballv =  {{ ballv }};
                     dtc = (data.paddleL.x + paddlew - data.ball.x + data.ball.r) / ballvx(data.ball);
                     break;
                 case 1:
-                    side = -1;
+                    side = 1;
                     dtc = (data.paddleL.x - data.ball.x - data.ball.r) / ballvx(data.ball);
                     break;
                 case 2:
-                    side = 1;
+                    side = -1;
                     paddle = data.paddleR;
                     dtc = (data.paddleR.x + paddlew - data.ball.x + data.ball.r) / ballvx(data.ball);
                     break;
@@ -145,11 +153,14 @@ let ballv =  {{ ballv }};
                     dtc = (data.paddleR.x - data.ball.x - data.ball.r) / ballvx(data.ball);
                     break;
             }
-            if (dtc > 0 && dtc <= tr.dt && data.ball.y + ballvy(data.ball) * dtc > paddle.y && data.ball.y + ballvy(data.ball) * dtc < paddle.y + paddleh)
+            if (dtc > 0 && dtc <= tr.dt && data.ball.y + ballvy(data.ball) * dtc > paddle.y + paddle.vy * dtc && data.ball.y + ballvy(data.ball) * dtc < paddle.y + paddle.vy * dtc + paddleh)
             {
                 tr.rv = data.ball.rv / ballfriction;
                 tr.dt = dtc;
-                tr.ntv = - data.ball.tv + Math.PI;
+                tr.ntv = sanangle(((2 * (data.ball.y + ballvy(data.ball) * dtc - (paddle.y + dtc * paddle.vy)) / paddleh) - 1) * 3 * PI / 8);
+                if (side == -1)
+                    tr.ntv = sanangle(PI - tr.ntv);
+                document.getElementById("test").innerHTML = (data.ball.y + ballvy(data.ball) * dtc - (paddle.y + dtc * paddle.vy)) / paddleh;
             }
         }
     }
@@ -174,6 +185,7 @@ let ballv =  {{ ballv }};
         return ((- b - Math.sqrt(delta)) / (2 * a));
     }
 
+
     function allSpheresColl(tr)
     {
         var coll;
@@ -182,18 +194,16 @@ let ballv =  {{ ballv }};
             x : data.paddleL.x + paddlew / 2,
             y : data.paddleL.y,
             r : paddlew / 2,
-            rv : Math.PI / 2,
-            tv : data.paddleL.vy
+            rv : data.paddleL.vy,
+            tv : PI / 2
         };
-
         coll = spheres(little, data.ball);
+        //document.getElementById("test").innerHTML = coll;
+        //logMessage(coll);
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            // if (data.ball.x >= little.x && data.ball.vx < 0)
-            //     tr.nvx = smash * Math.abs(data.ball.vx);
-            // tr.nvy = - smash * Math.abs(data.ball.vy);
-            tr.ntv = data.ball.tv + Math.PI;
+            tr.ntv = sanangle(- PI / 4);
             tr.nlvy = recoil;
             data.paddleL.recover = 0;
         }
@@ -204,26 +214,20 @@ let ballv =  {{ ballv }};
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            // if (data.ball.x >= little.x && data.ball.vx < 0)
-            //     tr.nvx = smash * Math.abs(data.ball.vx);
-            // tr.nvy = smash * Math.abs(data.ball.vy);
-            tr.ntv = data.ball.tv + Math.PI;
+            tr.ntv = sanangle(PI / 4);
             tr.nlvy = - recoil;
             data.paddleL.recover = 0;
         }
 
         little.x = data.paddleR.x + paddlew / 2;
         little.y = data.paddleR.y;
-        little.tv = data.paddleR.vy;
+        little.rv = data.paddleR.vy;
 
         coll = spheres(little, data.ball);
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            // if (data.ball.x <= little.x && data.ball.vx > 0)
-            //     tr.nvx = - smash * Math.abs(data.ball.vx);
-            // tr.nvy = - smash * Math.abs(data.ball.vy);
-            tr.ntv = data.ball.tv + Math.PI;
+            tr.ntv = sanangle(- 3 * PI / 4);
             tr.nrvy = recoil;
             data.paddleR.recover = 0;
         }
@@ -234,10 +238,7 @@ let ballv =  {{ ballv }};
         if (coll > 0 && coll <= tr.dt)
         {
             tr.dt = coll;
-            // if (data.ball.x <= little.x && data.ball.vx > 0)
-            //     tr.nvx = - smash * Math.abs(data.ball.vx);
-            // tr.nvy = smash * Math.abs(data.ball.vy);
-            tr.ntv = data.ball.tv + Math.PI;
+            tr.ntv = sanangle(3 * PI / 4);
             tr.nrvy = - recoil;
             data.paddleR.recover = 0;
         }
@@ -269,14 +270,14 @@ let ballv =  {{ ballv }};
 
     function input()
     {
-        data.paddleL.vy /= paddlefriction;
+        data.paddleL.vy /= paddlefriction; // Deplacer pour que ce soit en fonction du t et dans la simulation
         data.paddleR.vy /= paddlefriction;
         data.paddleL.recover += data.t / recovertime;
-        data.paddleR.recover += data.t / recovertime;
+        data.paddleR.recover += data.t / recovertime; 
         if (data.paddleL.recover > 1)
             data.paddleL.recover = 1;
         if (data.paddleR.recover > 1)
-            data.paddleR.recover = 1;
+            data.paddleR.recover = 1; //
         if (data.up == true)
         {
             data.paddleL.vy -= paddlespeed * data.paddleL.recover * data.t;
@@ -293,6 +294,7 @@ let ballv =  {{ ballv }};
 
     }
 
+    function sanangle(angle) {return angle % (2 * PI)}
     function ballvx(ball) {return ball.rv * Math.cos(ball.tv);}
     function ballvy(ball) {return ball.rv * Math.sin(ball.tv);}
 
@@ -302,23 +304,24 @@ let ballv =  {{ ballv }};
         var i = 0;
         while (data.t > 0 && i < 10000)
         {
+            let dt = data.t;
             let tr = {
-                dt : data.t,
                 nrv : data.ball.rv,
                 ntv : data.ball.tv,
                 nlvy : data.paddleL.vy,
                 nrvy : data.paddleR.vy,
+                restart : false
             }
-            document.getElementById("test").innerHTML = " tr.dt = " + tr.dt + " data.t = " + data.t +"<br>";
-            paddles(tr);
-            logMessage("tr.dt = " + tr.dt);
-            edgesColl(tr);
-            logMessage("tr.dt = " + tr.dt);
-            paddlesColl(tr);
-            logMessage("tr.dt = " + tr.dt);
-            allSpheresColl(tr);
-            logMessage("tr.dt = " + tr.dt);
-            logMessage("i = " + i);
+            //document.getElementById("test").innerHTML = " tr.dt = " + tr.dt + " data.t = " + data.t +"<br>";
+            final = paddles(dt, tr);
+            //logMessage("tr.dt = " + tr.dt);
+            final = edgesColl(dt, tr);
+            //logMessage("tr.dt = " + tr.dt);
+            final = paddlesColl(dt, tr);
+            //logMessage("tr.dt = " + tr.dt);
+            final = allSpheresColl(dt, tr);
+            // logMessage("tr.dt = " + tr.dt);
+            // logMessage("i = " + i);
 
             data.ball.x += ballvx(data.ball) * tr.dt;
             data.ball.y += ballvy(data.ball) * tr.dt;
@@ -348,9 +351,9 @@ let ballv =  {{ ballv }};
                 // logMessage("crash");
                 return (1);
             }
-            logMessage("Data ball : " + data.ball.vx + " " + data.ball.vy);
-            logMessage("Data ball pos : " + data.ball.x + " " + data.ball.y);
-            logMessage("Collision : " + Math.sqrt(Math.pow(data.ball.x - (data.paddleL.x + paddlew / 2), 2) + Math.pow(data.ball.y - data.paddleL.y - paddleh, 2)));
+            // logMessage("Data ball : " + data.ball.vx + " " + data.ball.vy);
+            // logMessage("Data ball pos : " + data.ball.x + " " + data.ball.y);
+            // logMessage("Collision : " + Math.sqrt(Math.pow(data.ball.x - (data.paddleL.x + paddlew / 2), 2) + Math.pow(data.ball.y - data.paddleL.y - paddleh, 2)));
         }
         data.t = 0.1;
         return (0);
@@ -365,7 +368,7 @@ let ballv =  {{ ballv }};
     let my=0;
     let light_pow = 100
     let fov_deg = 1;
-    let fov_rad = fov_deg * Math.PI/180;
+    let fov_rad = fov_deg * PI/180;
 
 
 
@@ -491,14 +494,14 @@ let ballv =  {{ ballv }};
 
     //             ctx.beginPath();
     //             ctx.fillStyle = '#FF0000';
-    //             ctx.arc(data.ball.x + canvas.width / 2, data.ball.y + canvas.height / 2, data.ball.r, 0, 2 * Math.PI, false);
+    //             ctx.arc(data.ball.x + canvas.width / 2, data.ball.y + canvas.height / 2, data.ball.r, 0, 2 * PI, false);
     //             ctx.fill();
 
     //             // Left Paddle
 
     //             ctx.beginPath();
     //             ctx.fillStyle = '#0000FF';
-    //             ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y, data.paddleL.w / 2, 0, 2 * PI, false);
     //             ctx.fill();
 
     //             ctx.beginPath();
@@ -509,14 +512,14 @@ let ballv =  {{ ballv }};
 
     //             ctx.beginPath();
     //             ctx.fillStyle = '#0000FF';
-    //             ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y + data.paddleL.h, data.paddleL.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.arc((canvas.width + data.paddleL.w) / 2 + data.paddleL.x, canvas.height / 2 + data.paddleL.y + data.paddleL.h, data.paddleL.w / 2, 0, 2 * PI, false);
     //             ctx.fill();
 
     //             //Right Paddle
 
     //             ctx.beginPath();
     //             ctx.fillStyle = '#0000FF';
-    //             ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y, data.paddleR.w / 2, 0, 2 * PI, false);
     //             ctx.fill();
 
     //             ctx.beginPath();
@@ -527,7 +530,7 @@ let ballv =  {{ ballv }};
 
     //             ctx.beginPath();
     //             ctx.fillStyle = '#0000FF';
-    //             ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y + data.paddleR.h, data.paddleR.w / 2, 0, 2 * Math.PI, false);
+    //             ctx.arc((canvas.width + data.paddleR.w) / 2 + data.paddleR.x, canvas.height / 2 + data.paddleR.y + data.paddleR.h, data.paddleR.w / 2, 0, 2 * PI, false);
     //             ctx.fill();
     //         }
     // }
