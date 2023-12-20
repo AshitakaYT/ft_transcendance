@@ -17,9 +17,10 @@ def index(request):
         "ballv" : 50,
         "recoil" : 150,
         "paddlefriction" : 1.1,
-        "ballfriction" : 1.3,
-        "smash" : 2,
-        "recovertime" : 2
+        "ballfriction" : 1.0002,
+        "smash" : 1.4,
+        "recovertime" : 2,
+        "lengoal" : 200
     }
     return HttpResponse(template.render(context, request))
     #return HttpResponse(f.read())
