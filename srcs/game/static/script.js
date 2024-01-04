@@ -2,9 +2,11 @@ let PI = Math.PI;
 
 //document.getElementById("test").innerHTML = Width;
 //document.getElementById("circle").setAttribute("height", string(Height + 20));
+const startButton = document.getElementById('startButton');
+const pauseButton = document.getElementById('pauseButton');
 
-document.getElementById('startButton').addEventListener('click', startGame);
-document.getElementById('pauseButton').addEventListener('click', pauseGame);
+startButton.addEventListener('click', startGame);
+pauseButton.addEventListener('click', pauseGame);
 
 let gameRunning = false;
 let gameAnimationFrame;
@@ -12,6 +14,8 @@ let gameAnimationFrame;
 function startGame() {
     if (!gameRunning) {
         gameRunning = true;
+        startButton.style.display ='none';
+        pauseButton.style.display ='block';
         pauseOverlay.style.display = 'none';
         gameAnimationFrame = requestAnimationFrame(frame);
     }
@@ -21,6 +25,8 @@ function pauseGame() {
     if (gameRunning) {
         gameRunning = false;
         updatePauseOverlay();
+        pauseButton.style.display ='none';
+        startButton.style.display ='block';
         pauseOverlay.style.display = 'block';
         cancelAnimationFrame(gameAnimationFrame);
     }

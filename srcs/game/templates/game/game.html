@@ -64,6 +64,16 @@
     color: white;
 }
 
+.custom-purple{
+    background-color: rgba(188, 55, 188, 0.872);
+    color: white;
+    border-color: rgb(94, 0, 94);
+}
+.custom-btn-size {
+    padding: 20px 40px;
+    font-size: 2em;
+}
+
     #buttonContainer {
         position: absolute;
         top: 10px;
@@ -122,11 +132,11 @@
     <div id="buttonContainer" class="text-center">
         <div class="row justify-content-center">
             <div class="col-auto">
-                <button class="btn btn-success mb-2" id="startButton">
-                    <i class="bi bi-play-fill"></i> Start
+                <button class="btn custom-btn-size custom-purple mb-2" id="startButton">
+                    <i class="bi bi-play-fill" ></i>
                 </button>
-                <button class="btn btn-warning mb-2" id="pauseButton">
-                    <i class="bi bi-pause-fill"></i> Pause
+                <button class="btn custom-btn-size custom-purple mb-2" id="pauseButton" style="display: none;">
+                    <i class="bi bi-pause-fill"></i>
                 </button>
             </div>
         </div>
