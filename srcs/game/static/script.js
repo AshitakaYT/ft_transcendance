@@ -12,6 +12,7 @@ let PI = Math.PI;
 function startGame() {
     if (!gameRunning) {
         gameRunning = true;
+        pauseOverlay.style.display = 'none';
         gameAnimationFrame = requestAnimationFrame(frame);
     }
 }
@@ -19,8 +20,20 @@ function startGame() {
 function pauseGame() {
     if (gameRunning) {
         gameRunning = false;
+        updatePauseOverlay();
+        pauseOverlay.style.display = 'block';
         cancelAnimationFrame(gameAnimationFrame);
     }
+}
+
+const pauseOverlay = document.getElementById('pauseOverlay');
+window.addEventListener('resize', updatePauseOverlay);
+function updatePauseOverlay() {
+    const rect = gameContainer.getBoundingClientRect();
+    pauseOverlay.style.width = `${rect.width}px`;
+    pauseOverlay.style.height = `${rect.height}px`;
+    pauseOverlay.style.top = `0px`;
+    pauseOverlay.style.left = `0px`;
 }
 
     var data =
@@ -393,10 +406,13 @@ function pauseGame() {
     camera.position.set(0,0,Math.max(width, height)/(2.*Math.tan(fov_rad/2.)));
     camera.lookAt(0,0,0);
 
+    const gameContainer = document.getElementById('gameContainer');
     const renderer = new THREE.WebGLRenderer();
+    gameContainer.appendChild(renderer.domElement);
+    gameContainer.appendChild(pauseOverlay);
+    const gameElement = renderer.domElement;
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
-    document.body.appendChild( renderer.domElement );
     //document.addEventListener("mousemove",mouseevent);
     window.addEventListener("resize",windowsresize);
 
