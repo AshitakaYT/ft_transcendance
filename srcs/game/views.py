@@ -20,7 +20,8 @@ def index(request):
         "ballfriction" : 1.0002,
         "smash" : 1.4,
         "recovertime" : 2,
-        "lengoal" : 200
+        "lengoal" : 200,
+        "duo" : "false"
     }
     return HttpResponse(template.render(context, request))
     #return HttpResponse(f.read())

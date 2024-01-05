@@ -18,31 +18,42 @@
 </html> 
 
 <script type='module'>
-let width={{ width }};
-let height={{ height }};
-let paddleh={{ paddleh }};
-let paddlew={{ paddlew }};
-let paddled={{ paddled }};
-let paddlespeed={{ paddlespeed }};
-let recoil = {{ recoil }};
-let paddlefriction ={{ paddlefriction }};
-let ballfriction = {{ ballfriction }};
-let smash = {{ smash }};
-let recovertime = {{ recovertime }}
-let ballv =  {{ ballv }};
-let lengoal = {{ lengoal }}
+    let width={{ width }};
+    let height={{ height }};
+    let paddleh={{ paddleh }};
+    let paddlew={{ paddlew }};
+    let paddled={{ paddled }};
+    let paddlespeed={{ paddlespeed }};
+    let recoil = {{ recoil }};
+    let paddlefriction ={{ paddlefriction }};
+    let ballfriction = {{ ballfriction }};
+    let smash = {{ smash }};
+    let recovertime = {{ recovertime }};
+    let ballv =  {{ ballv }};
+    let lengoal = {{ lengoal }};
+    let duo = {{ duo }};
 
-let PI = Math.PI;
+    let PI = Math.PI;
 
     //document.getElementById("test").innerHTML = Width;
     //document.getElementById("circle").setAttribute("height", string(Height + 20));
-
+    class paddle 
+    {
+        constructor(x, y) 
+        {
+            this.x = x;
+            this.y = y;
+            this.vy = 0;
+            this.recover = 1;
+        }
+    }
 
     var data =
     {
         t : 0.1,
-        up : false,
-        down : false,
+        keys : [false, false, false, false],
+        scoreL : 0,
+        scoreR : 0,
         ball :
         {
             x : 0,
@@ -51,36 +62,51 @@ let PI = Math.PI;
             rv : ballv,
             tv : 0,
         },
-        paddleR :
-        {
-            x : width / 2 - paddled - paddlew,
-            y : - paddleh / 2,
-            vy : 0,
-            recover : 1,
-            score : 0
-        },
-        paddleL :
-        {
-            x : paddled - width / 2,
-            y : - paddleh / 2,
-            vy : 0,
-            recover : 1,
-            score : 0
-        }
+        paddleR : new paddle(width / 2 - paddled - paddlew, - paddleh / 2),
+        paddleL : new paddle(paddled - width / 2, - paddleh / 2)
     };
 
+    if (duo)
+    {
+        data.paddleRR = new paddle(width / 2 - paddled - paddlew, - paddleh / 2);
+        data.paddleRR = new paddle(width / 2 - paddled - paddlew, - paddleh / 2);
+        data.keys.push(false, false, false, false);
+    }
+
     document.addEventListener("keydown", (e) => {
-        if (e.key == 's' && !e.repeat)
-            data.up = true;
         if (e.key == 'w' && !e.repeat)
-            data.down = true;
+            data.keys[0] = true;
+        if (e.key == 's' && !e.repeat)
+            data.keys[1] = true;
+        if (e.key == 'o' && !e.repeat)
+            data.keys[3] = true;
+        if (e.key == 'l' && !e.repeat)
+            data.keys[4] = true;
     });
 
+    // document.onkeydown = (e) => {
+    // e = e || window.event;
+
+    // if (e.keycode == 'w')
+    //     data.keys[0] = true;
+    // if (e.keycode == 's')
+    //     data.keys[1] = true;
+    // if (e.keycode == 38)
+    //     data.keys[3] = true;
+    // if (e.keycode == 40)
+    //     data.keys[4] = true;
+    // };
+
+
     document.addEventListener("keyup", (e) => {
-            if (e.key == 's' && !e.repeat)
-                data.up = false;
-            if (e.key == 'w' && !e.repeat)
-                data.down = false;
+        if (e.key == 'w' && !e.repeat)
+            data.keys[0] = false;
+        if (e.key == 's' && !e.repeat)
+            data.keys[1] = false;
+        if (e.key == 'o' && !e.repeat)
+            data.keys[3] = false;
+        if (e.key == 'l' && !e.repeat)
+            data.keys[4] = false;
         });
 
     
@@ -295,15 +321,25 @@ let PI = Math.PI;
             data.paddleL.recover = 1;
         if (data.paddleR.recover > 1)
             data.paddleR.recover = 1; //
-        if (data.up == true)
-        {
-            data.paddleL.vy -= paddlespeed * data.paddleL.recover * data.t;
-            data.paddleR.vy -= paddlespeed * data.paddleR.recover * data.t;
-        }
-        if (data.down == true)
+        if (data.keys[0] == true)
         {
             data.paddleL.vy += paddlespeed * data.paddleL.recover * data.t;
+            //data.paddleR.vy += paddlespeed * data.paddleR.recover * data.t;
+        }
+        if (data.keys[1] == true)
+        {
+            data.paddleL.vy -= paddlespeed * data.paddleL.recover * data.t;
+            //data.paddleR.vy -= paddlespeed * data.paddleR.recover * data.t;
+        }
+        if (data.keys[3] == true)
+        {
+            //data.paddleL.vy += paddlespeed * data.paddleL.recover * data.t;
             data.paddleR.vy += paddlespeed * data.paddleR.recover * data.t;
+        }
+        if (data.keys[4] == true)
+        {
+            //data.paddleL.vy -= paddlespeed * data.paddleL.recover * data.t;
+            data.paddleR.vy -= paddlespeed * data.paddleR.recover * data.t;
         }
 
         //IA input
@@ -317,7 +353,7 @@ let PI = Math.PI;
 
     function simulate()
     {
-        document.getElementById("test").innerHTML = "Score : " + data.paddleL.score + " - " + data.paddleR.score;
+        document.getElementById("test").innerHTML = "Score : " + data.scoreL + " - " + data.scoreR;
         input();
         var i = 0;
         var inter;
@@ -358,9 +394,9 @@ let PI = Math.PI;
             if (final.restart)
             {
                 if (data.ball.x > 0)
-                    data.paddleL.score++;
+                    data.scoreL++;
                 else
-                    data.paddleR.score++;
+                    data.scoreR++;
                 data.ball.x = 0;
                 data.ball.y = 0;
             }
