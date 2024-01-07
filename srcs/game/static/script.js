@@ -4,19 +4,26 @@ let PI = Math.PI;
 //document.getElementById("circle").setAttribute("height", string(Height + 20));
 const startButton = document.getElementById('startButton');
 const pauseButton = document.getElementById('pauseButton');
+const homeButton = document.getElementById('homeButton');
 
 startButton.addEventListener('click', startGame);
 pauseButton.addEventListener('click', pauseGame);
 
 let gameRunning = false;
 let gameAnimationFrame;
+let isColorChangeEnabled = true;
+let isControlSettings = false;
+
 
 function startGame() {
     if (!gameRunning) {
         gameRunning = true;
         startButton.style.display ='none';
         pauseButton.style.display ='block';
+        homeButton.style.display ='none';
         pauseOverlay.style.display = 'none';
+        exitControlSettingsMode('up');
+        exitControlSettingsMode('down');
         gameAnimationFrame = requestAnimationFrame(frame);
     }
 }
@@ -26,6 +33,7 @@ function pauseGame() {
         gameRunning = false;
         updatePauseOverlay();
         pauseButton.style.display ='none';
+        homeButton.style.display ='block';
         startButton.style.display ='block';
         pauseOverlay.style.display = 'block';
         cancelAnimationFrame(gameAnimationFrame);
@@ -82,19 +90,72 @@ var data =
     }
 };
 
+let upKey = 'w';
+let downKey = 's';
+let keyDownHandler;
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('upControl').addEventListener('click', function() {
+        enterControlSettingsMode('up');
+    });
+
+    document.getElementById('downControl').addEventListener('click', function() {
+        enterControlSettingsMode('down');
+    });
+});
+
+function enterControlSettingsMode(control) {
+    if (isControlSettings) {
+        return;
+    }
+    isControlSettings = true;
+    document.querySelector(`#${control}Control`).classList.add('active');
+    waitForNextKeyPress(control);
+}
+
+function waitForNextKeyPress(control) {
+    keyDownHandler = function(e) {
+        if (!e.repeat) {
+            updateControl(control, e.key);
+            exitControlSettingsMode(control);
+        }
+    };
+    document.addEventListener('keydown', keyDownHandler);
+}
+
+function updateControl(control, key) {
+    switch (control) {
+        case 'up':
+            upKey = key;
+            document.querySelector('#upControl span').textContent = key;
+            break;
+        case 'down':
+            downKey = key;
+            document.querySelector('#downControl span').textContent = key;
+            break;
+    }
+}
+
+function exitControlSettingsMode(control) {
+    document.removeEventListener('keydown', keyDownHandler);
+    document.querySelector(`#${control}Control`).classList.remove('active');
+    isControlSettings = false;
+}
+
 document.addEventListener("keydown", (e) => {
-    if (e.key == 's' && !e.repeat)
+    if (e.key == upKey && !e.repeat)
         data.up = true;
-    if (e.key == 'w' && !e.repeat)
+    if (e.key == downKey && !e.repeat)
         data.down = true;
 });
 
 document.addEventListener("keyup", (e) => {
-    if (e.key == 's' && !e.repeat)
+    if (e.key == upKey && !e.repeat)
         data.up = false;
-    if (e.key == 'w' && !e.repeat)
+    if (e.key == downKey && !e.repeat)
         data.down = false;
 });
+
 
 
 function frame() {
@@ -286,11 +347,11 @@ function input() {
         data.paddleL.recover = 1;
     if (data.paddleR.recover > 1)
         data.paddleR.recover = 1; //
-    if (data.up == true) {
+    if (data.down == true) {
         data.paddleL.vy -= paddlespeed * data.paddleL.recover * data.t;
         data.paddleR.vy -= paddlespeed * data.paddleR.recover * data.t;
     }
-    if (data.down == true) {
+    if (data.up == true) {
         data.paddleL.vy += paddlespeed * data.paddleL.recover * data.t;
         data.paddleR.vy += paddlespeed * data.paddleR.recover * data.t;
     }
@@ -449,9 +510,10 @@ let rot = 0;
 
 
 function animate() {
-    light.color.offsetHSL(0.003, 0, 0);
-    material_unlit.color.offsetHSL(0.003, 0, 0);
-
+    if (isColorChangeEnabled) {
+        light.color.offsetHSL(0.003, 0, 0);
+        material_unlit.color.offsetHSL(0.003, 0, 0);
+    }
     for (let i = 0; i < len - 1; ++i) {
         arrball[i].position.set(arrball[i + 1].position.x, arrball[i + 1].position.y, arrball[i + 1].position.z,);
     }
@@ -478,6 +540,12 @@ function windowsresize() {
     camera.updateProjectionMatrix();
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleColorChangeCheckbox = document.getElementById('toggleColorChange');
 
+    toggleColorChangeCheckbox.addEventListener('change', function() {
+        isColorChangeEnabled = this.checked;
+    });
+});
 
 frame();
