@@ -5,10 +5,10 @@ build:
 	docker build -t tr .
 
 run :
-	docker container run --mount type=bind,source=./srcs,target=/home/iel-amra --name trc --rm -p 8000:8000 tr
+	docker container run --mount type=bind,source=/Users/nchabli/Documents/transcendance/ft_transcendance/srcs,target=/app --name trc --rm -p 8000:8000 tr
 
 rund :
-	docker container run --mount type=bind,source=./srcs,target=/home/iel-amra --name trc -d --rm -p 8000:8000 tr
+	docker container run --mount type=bind,source=/Users/nchabli/Documents/transcendance/ft_transcendance/srcs,target=/app --name trc -d --rm -p 8000:8000 tr
 
 
 inspect :
