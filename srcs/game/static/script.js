@@ -14,7 +14,6 @@ let gameAnimationFrame;
 let isColorChangeEnabled = true;
 let isControlSettings = false;
 
-
 function startGame() {
     if (!gameRunning) {
         gameRunning = true;

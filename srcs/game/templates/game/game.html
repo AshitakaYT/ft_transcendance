@@ -7,6 +7,9 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css"
         rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
 
     <meta charset=utf-8 />
     <title>Jeu</title>
@@ -20,6 +23,17 @@
     </script>
 </head>
 <style>
+    * {
+        user-select: none;
+        /* This will make the text unselectable */
+        -moz-user-select: none;
+        /* Firefox */
+        -webkit-user-select: none;
+        /* Chrome and Safari */
+        -ms-user-select: none;
+        /* Internet Explorer/Edge */
+    }
+
     #gameContainer {
         position: relative;
 
@@ -42,6 +56,10 @@
 
     .pause-text {
         color: white;
+        font-family: 'Orbitron', sans-serif;
+        overflow: hidden;
+        touch-action: pan-up;
+        text-shadow: 0 0 2px #ffffff, 0 0 20px #000, 0 0 30px #000;
         font-size: 3em;
         text-align: center;
         position: relative;
@@ -61,6 +79,12 @@
 
     .player-score {
         font-size: 4em;
+        overflow: hidden;
+        touch-action: pan-up;
+        color: #ffffff;
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        text-shadow: 0 0 5px #ffffff, 0 0 20px #000, 0 0 30px #000;
         color: white;
         z-index: 11;
     }
@@ -76,7 +100,7 @@
         font-size: 2em;
     }
 
-    .pause-text > div {
+    .pause-text>div {
         margin-left: 30%;
         margin-right: 30%;
     }
@@ -91,23 +115,43 @@
     }
 
     #controls div {
-    cursor: pointer;
-    color: rgba(188, 55, 188, 0.872);
-    margin: 10px 0;
-    padding: 5px 10px;
-    border: 1px solid rgba(188, 55, 188, 0.872);
-    border-radius: 5px;
-    display: inline-block;
-}
+        cursor: pointer;
+        color: rgba(188, 55, 188, 0.872);
+        text-shadow: 0 0 5px rgba(188, 55, 188, 0.872), 0 0 20px #000, 0 0 30px #000;
+        margin: 10px 0;
+        padding: 5px 10px;
+        border: 1px solid rgba(188, 55, 188, 0.872);
+        border-radius: 5px;
+        display: inline-block;
+    }
 
-#controls div:hover {
-    background-color: rgb(87, 49, 75);
-}
+    #controls div:hover {
+        background-color: rgb(87, 49, 75);
+    }
 
-#controls div.active {
-    background-color: rgb(204, 0, 255);
-    color: white;
-}
+    #controls div.active {
+        background-color: rgb(204, 0, 255);
+        color: white;
+    }
+
+    #gameNameContent {
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+        z-index: 11;
+    }
+
+    #gameName {
+        font-size: 4em;
+        overflow: hidden;
+        touch-action: pan-up;
+        color: #ffffff;
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        text-shadow: 0 0 5px #ffffff, 0 0 20px #000, 0 0 30px #000;
+        color: white;
+    }
 
     @keyframes scaleUp {
         0% {
@@ -149,7 +193,7 @@
         100% {
             color: white;
         }
-        
+
     }
 </style>
 <div id="app">
@@ -176,6 +220,9 @@
                     </div>
                 </div>
             </div>
+            <div id="gameNameContent">
+                <p id="gameName">SUPER PONG NAME</p>
+            </div>
         </div>
     </div>
     <div id="pauseOverlay" class="pause-overlay">
@@ -184,7 +231,7 @@
                 <input class="form-check-input" type="checkbox" id="toggle3D" checked>
                 <label class="form-check-label" for="toggle3D">3D</label>
             </div>
-            
+
             <div class="form-check mb-2">
                 <input class="form-check-input" type="checkbox" id="toggleColorChange" checked>
                 <label class="form-check-label" for="toggleColorChange">Ball Color Change</label>
@@ -196,8 +243,6 @@
             </div>
         </div>
     </div>
-    
-
 </div>
 <div id="home" class="route-section">
     <h1>THE TRANSCENDANCE PONG HOMEPAGE TU CONNAIS LES BAILS</h1>
