@@ -26,8 +26,7 @@ function pauseGame() {
     var data =
     {
         t : 0.1,
-        up : false,
-        down : false,
+        keys : [false, false, false, false],
         ball :
         {
             x : 0,
@@ -63,7 +62,7 @@ function pauseGame() {
             data.keys[3] = true;
         if (e.key == 'l' && !e.repeat)
             data.keys[4] = true;
-
+    });
 
     document.addEventListener("keyup", (e) => {
         if (e.key == 'w' && !e.repeat)
@@ -74,7 +73,7 @@ function pauseGame() {
             data.keys[3] = false;
         if (e.key == 'l' && !e.repeat)
             data.keys[4] = false;
-        });
+    });
 
     
     function frame()

@@ -11,7 +11,7 @@ def index(request):
         "width": 1000,
         "height": 600,
         "paddleh" : 150,
-        "paddlew" : 20,
+        "paddlew" : 100,
         "paddled" : 20,
         "paddlespeed" : 250,
         "ballv" : 50,
